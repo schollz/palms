@@ -1,7 +1,6 @@
 #include <Bela.h>
 #include <cmath>
 #include <libraries/Trill/Trill.h>
-#include <libraries/OnePole/OnePole.h>
 #include "Saw.h"
 
 // Trill stuff
@@ -47,24 +46,26 @@ bool setup(BelaContext *context, void *userData)
 	// Set and schedule auxiliary task for reading sensor data from the I2C bus
 	Bela_runAuxiliaryTask(loop);
 
-	for(unsigned int i = 0; i < NUM_TOUCH; i++) {
-		osc[i]=Saw(220,context->audioSampleRate);
+	osc[0]=Saw(65.41,context->audioSampleRate);
+	osc[1]=Saw(98.1,context->audioSampleRate);
+	osc[2]=Saw(82.4,context->audioSampleRate);
+	osc[3]=Saw(77.81,context->audioSampleRate);
+	for(unsigned int i = 4; i < NUM_TOUCH; i++) {
+		osc[i]=Saw(98.0,context->audioSampleRate);
 	}
-	osc[0].gate(true);
 
 	return true;
 }
 
 void render(BelaContext *context, void *userData)
 {
-	osc[0].gate(true);
 	for(unsigned int i = 0; i < NUM_TOUCH; i++) {
 		if (gTouchSize[i]>0) {
 			osc[i].gate(true);
+			osc[i].setPan(gTouchLocation[i]);
 		} else {
 			osc[i].gate(false);
 		}
-		osc[i].setBrightness(gTouchLocation[i]);
 	}
 	for(unsigned int n = 0; n < context->audioFrames; n++) {
 		for(unsigned int channel = 0; channel < context->audioOutChannels; channel++) {

@@ -28,7 +28,7 @@ int Saw::setup(float frequency, float samplingRate) {
 	_brightness=0.1;
 	_detuning=0.001;
 	_pan=0.5;
-	_amp=0.1;
+	_amp=0.5;
 	_attack=2;
 	_decay=0.25;
 	_sustain=0.9;
@@ -94,20 +94,25 @@ float Saw::process(unsigned int channel) {
 		return 0;
 	}
 	float amp=_pan;
-	if (channel==1) {
+	if (channel>0) {
 		amp=1-_pan;
 	} else {
 		// process envelope every two times
-		_envAmp = envelope.process();
+		// _envAmp = envelope.process();
 	}
-	amp=amp*_amp/2*_envAmp;
+	amp=amp*_amp/2*envelope.process();
 	// mix the two oscillators
 	float out=0;
 	for (unsigned int i=0;i<NUM_OSC;i++) {
-		out += osc[i].process(
-			_frequency * 
-			(1 + _detuning*(i*2-1)) 
-		);
+		if (i==0) {
+			out += osc[i].process(
+				_frequency *  (1 + _detuning)
+			);
+		} else {
+			out += osc[i].process(
+				_frequency *  (1 - _detuning)
+			);
+		}
 	} 
 	out = lpFilter[channel].process(out * amp);
 	return out;

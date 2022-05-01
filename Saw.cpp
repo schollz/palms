@@ -90,6 +90,9 @@ void Saw::gate(bool on) {
 }
 
 float Saw::process(unsigned int channel) {
+	if (channel>1) {
+		return 0;
+	}
 	float amp=_pan;
 	if (channel==1) {
 		amp=1-_pan;

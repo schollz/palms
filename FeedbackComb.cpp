@@ -1,16 +1,18 @@
-#include "Comb.h"
+#include "FeedbackComb.h"
 #include <math.h>
 #include <stdexcept>
 
-Comb::Comb() {}
+FeedbackComb::FeedbackComb() {}
 
-Comb::Comb(float seconds, float decaytime, float mul, float samplingRate) {
+FeedbackComb::FeedbackComb(float seconds, float decaytime, float mul,
+                           float samplingRate) {
     int ret;
     if ((ret = setup(seconds, decaytime, mul, samplingRate)))
         throw std::runtime_error("comb: cutoff is above Nyquist");
 }
 
-int Comb::setup(float seconds, float decaytime, float mul, float samplingRate) {
+int FeedbackComb::setup(float seconds, float decaytime, float mul,
+                        float samplingRate) {
     if (samplingRate < 1) {
         return -1;
     }
@@ -31,7 +33,7 @@ int Comb::setup(float seconds, float decaytime, float mul, float samplingRate) {
     return 0;
 }
 
-float Comb::process(float input) {
+float FeedbackComb::process(float input) {
     // store the current vlaue
     _i += 1;
     if (_i >= buf.size()) {

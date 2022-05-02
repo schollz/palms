@@ -2,10 +2,10 @@
 
 #pragma once
 
-class Comb {
+class FeedbackComb {
   public:
-    Comb();
-    Comb(float seconds, float decaytime, float mul, float samplingRate);
+    FeedbackComb();
+    FeedbackComb(float seconds, float decaytime, float mul, float samplingRate);
     int setup(float frequency, float decaytime, float mul, float samplingRate);
     float process(float input);
     unsigned int size() { return buf.size(); }

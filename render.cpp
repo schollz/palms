@@ -1,4 +1,4 @@
-#include "Comb.h"
+#include "FeedbackComb.h"
 #include "Saw.h"
 #include <Bela.h>
 #include <cmath>
@@ -17,8 +17,8 @@ unsigned int gTaskSleepTime = 12000; // microseconds
 float gCutOffFreq = 5, gCutOffAmp = 15;
 
 Saw osc[NUM_TOUCH];
-Comb cl[20];
-Comb cr[20];
+FeedbackComb cl[20];
+FeedbackComb cr[20];
 
 float randfloat(float a, float b) {
     return ((b - a) * ((float)rand() / RAND_MAX)) + a;
@@ -60,10 +60,10 @@ bool setup(BelaContext* context, void* userData) {
     osc[0].setBrightness(0.1);
 
     for (unsigned int i = 0; i < 20; i++) {
-        cl[i] = Comb(randfloat(0.01, 0.1), randfloat(1, 4), randfloat(0, 0.5),
-                     context->audioSampleRate);
-        cr[i] = Comb(randfloat(0.01, 0.1), randfloat(1, 4), randfloat(0, 0.5),
-                     context->audioSampleRate);
+        cl[i] = FeedbackComb(randfloat(0.01, 0.1), randfloat(1, 4),
+                             randfloat(0, 0.5), context->audioSampleRate);
+        cr[i] = FeedbackComb(randfloat(0.01, 0.1), randfloat(1, 4),
+                             randfloat(0, 0.5), context->audioSampleRate);
     }
     // for(unsigned int i = 4; i < NUM_TOUCH; i++) {
     // 	osc[i]=Saw(98.0,context->audioSampleRate);

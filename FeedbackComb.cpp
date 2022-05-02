@@ -4,26 +4,24 @@
 
 FeedbackComb::FeedbackComb() {}
 
-FeedbackComb::FeedbackComb(float seconds, float decaytime, float mul,
+FeedbackComb::FeedbackComb(float delay, float decay, float mul,
                            float samplingRate) {
     int ret;
-    if ((ret = setup(seconds, decaytime, mul, samplingRate)))
-        throw std::runtime_error("comb: cutoff is above Nyquist");
+    if ((ret = setup(delay, decay, mul, samplingRate)))
+        throw std::runtime_error("feedback comb: decay is less then delay");
 }
 
-int FeedbackComb::setup(float seconds, float decaytime, float mul,
+int FeedbackComb::setup(float delay, float decay, float mul,
                         float samplingRate) {
-    if (samplingRate < 1) {
+    if (decay < delay) {
         return -1;
     }
     _mul = mul;
     _samplingRate = samplingRate;
-    _alpha =
-        pow(0.001,
-            seconds / decaytime); // exp(-6.90775527898/ (decaytime/seconds));
-    _seconds = seconds;
-    _K = static_cast<int>(round(_samplingRate * seconds));
-    buf.resize(static_cast<int>(round(_samplingRate * seconds + 2)));
+    _alpha = pow(0.001, delay / decay);
+    _delay = delay;
+    _K = static_cast<int>(round(_samplingRate * delay));
+    buf.resize(static_cast<int>(round(_samplingRate * delay + 2)));
     // initialize to 0
     for (unsigned i = 0; i < buf.size(); i++)
         buf.at(i) = 0;

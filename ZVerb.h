@@ -13,6 +13,12 @@ class ZVerb {
     ZVerb(float wet, float roomsize, float samplingRate);
     int setup(float wet, float roomsize, float samplingRate);
     float process(float input);
+    void setWet(float wet) { wet_ = wet; };
+    void setRoomsize(float roomsize) {
+        roomsize = roomsize_;
+        update();
+    };
+    void update();
 
   private:
     float wet_, roomsize_, samplingRate_;

@@ -40,12 +40,12 @@ float Allpass::process(float input) {
         _t = 0;
     }
     // s(t) = x(t) + k * s(t - D)
-    _s.at(_t) = input + (_k * _s.at(tD));
+    _s.at(_t) = input + (_k * _s.at(_tD));
 
     _tD += 1;
     if (_tD >= _s.size()) {
         _tD = 0;
     }
     // y(t) = -k * s(t) + s(t - D)
-    return -1 * _k * _s.at(t) + _s(tD);
+    return -1 * _k * _s.at(_t) + _s.at(_tD);
 }

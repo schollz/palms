@@ -37,15 +37,12 @@ float Comb::process(float input) {
     if (_i >= buf.size()) {
         _i = 0;
     }
-    // https://en.wikipedia.org/wiki/Comb_filter
-    // buf.at(_i) = input + (_alpha * buf.at(_i));
-    buf.at(_i) = input;
+    buf.at(_i) = input + (_alpha * buf.at(_i));
 
     // get the previous value
     _j += 1;
     if (_j >= buf.size()) {
         _j = 0;
     }
-    return (input + _alpha * buf.at(_j)) * _mul;
-    // return buf.at(_j) * _mul;
+    return buf.at(_j) * _mul;
 }

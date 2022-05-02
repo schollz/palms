@@ -1,4 +1,4 @@
-#include "Saw.h"
+#include "SawDetuned.h"
 #include <Bela.h>
 #include <libraries/ADSR/ADSR.h>
 #include <libraries/Biquad/Biquad.h>
@@ -8,15 +8,15 @@
 
 #define NUM_OSC 2 // total number of oscillators
 
-Saw::Saw() {}
+SawDetuned::SawDetuned() {}
 
-Saw::Saw(float frequency, float samplingRate) {
+SawDetuned::SawDetuned(float frequency, float samplingRate) {
     int ret;
     if ((ret = setup(frequency, samplingRate)))
         throw std::runtime_error("OnePole: cutoff is above Nyquist");
 }
 
-int Saw::setup(float frequency, float samplingRate) {
+int SawDetuned::setup(float frequency, float samplingRate) {
     if (frequency < 1) {
         return -1;
     }
@@ -57,39 +57,39 @@ int Saw::setup(float frequency, float samplingRate) {
     return 0;
 }
 
-void Saw::update() {
+void SawDetuned::update() {
     for (unsigned int i = 0; i < 2; i++) {
         lpFilter[i].setFc(_frequency * pow(10, _brightness));
     }
 }
 
-void Saw::setAmp(float amp) { _amp = amp; }
+void SawDetuned::setAmp(float amp) { _amp = amp; }
 
-void Saw::setFrequency(float frequency) {
+void SawDetuned::setFrequency(float frequency) {
     _frequency = frequency;
     update();
 }
 
-void Saw::setBrightness(float brightness) {
+void SawDetuned::setBrightness(float brightness) {
     _brightness = brightness;
     update();
 }
 
-void Saw::setDetuning(float detuning) { _detuning = detuning; }
+void SawDetuned::setDetuning(float detuning) { _detuning = detuning; }
 
-void Saw::setPan(float pan) { _pan = pan; }
+void SawDetuned::setPan(float pan) { _pan = pan; }
 
-void Saw::gate(bool on) {
+void SawDetuned::gate(bool on) {
     _gate = on;
     envelope.gate(on);
 }
 
-void Saw::toggle() {
+void SawDetuned::toggle() {
     _gate = !_gate;
     envelope.gate(_gate);
 }
 
-float Saw::process(unsigned int channel) {
+float SawDetuned::process(unsigned int channel) {
     if (channel > 1) {
         return 0;
     }

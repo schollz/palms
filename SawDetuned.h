@@ -4,10 +4,10 @@
 
 #pragma once
 
-class Saw {
+class SawDetuned {
   public:
-    Saw();
-    Saw(float frequency, float samplingRate);
+    SawDetuned();
+    SawDetuned(float frequency, float samplingRate);
     int setup(float frequency, float samplingRate);
     void setFrequency(float frequency);
     void setBrightness(float brightness);

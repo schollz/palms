@@ -1,10 +1,7 @@
+#include "PrimeRandom.h"
 #include "ZVerb.h"
 #include <math.h>
 #include <stdexcept>
-
-float randfloat(float a, float b) {
-    return ((b - a) * ((float)rand() / RAND_MAX)) + a;
-}
 
 ZVerb::ZVerb() {}
 
@@ -23,13 +20,15 @@ int ZVerb::setup(float wet, float roomsize, float samplingRate) {
     samplingRate_ = samplingRate;
     for (unsigned int i = 0; i < ZVERB_COMB; i++) {
         comb[i] =
-            FeedbackComb(randfloat(0.01, 0.99), randfloat(0.1, 6) * roomsize_,
-                         randfloat(0.25, 0.75), samplingRate_);
+            FeedbackComb(randfloatp(0.01, 0.99), randfloatp(0.1, 6) * roomsize_,
+                         randfloatp(0.25, 0.75), samplingRate_);
     }
 
     for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
-        allpass[i] = Allpass(randfloat(0.01, 0.99),
-                             randfloat(0.1, 6) * roomsize_, 1, samplingRate_);
+        allpass[i] =
+            Allpass(randfloatp(0.01, 0.99),
+                    randfloatp(0.75, 1) * (static_cast<float>(i)) * roomsize_,
+                    1, samplingRate_);
     }
     return 0;
 }

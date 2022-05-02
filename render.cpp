@@ -80,7 +80,7 @@ void render(BelaContext *context, void *userData)
 	beats += (bpm/60) * context->audioFrames / context->audioSampleRate;
 	if (floor(beats)!=floor(beats_old)) {
 		// new beat
-		rt_printf("beat (%f bpm): %f\n",bpm,beats);
+		rt_printf("beat (%2.1f bpm): %f\n",bpm,beats);
 		for(unsigned int i = 0; i < NUM_TOUCH; i++) {
 			osc[i].toggle();
 		}

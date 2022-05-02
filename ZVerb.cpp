@@ -27,11 +27,20 @@ int ZVerb::setup(float wet, float roomsize, float samplingRate) {
                          randfloat(0.25, 0.75), samplingRate_);
     }
 
-    for (unsigned int i = 0; i < ZVERB_AP; i++) {
+    for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
         allpass[i] = Allpass(randfloat(0.01, 0.99),
                              randfloat(0.1, 6) * roomsize_, 1, samplingRate_);
     }
     return 0;
 }
 
-float ZVerb::process(float input) { return 0; }
+float ZVerb::process(float input) {
+    float out = 0;
+    for (unsigned int i = 0; i < ZVERB_COMB; i++) {
+        out += comb[i].process(input);
+    }
+    for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
+        out = allpass[i].process(out);
+    }
+    return out;
+}

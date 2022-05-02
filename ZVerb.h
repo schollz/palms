@@ -5,7 +5,7 @@
 #pragma once
 
 #define ZVERB_COMB 10
-#define ZVERB_AP 4
+#define ZVERB_ALLPASS 4
 
 class ZVerb {
   public:
@@ -17,5 +17,5 @@ class ZVerb {
   private:
     float wet_, roomsize_, samplingRate_;
     FeedbackComb comb[ZVERB_COMB];
-    Allpass allpass[ZVERB_AP];
+    Allpass allpass[ZVERB_ALLPASS];
 };

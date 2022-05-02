@@ -25,16 +25,17 @@ int Saw::setup(float frequency, float samplingRate) {
 	}
 	_samplingRate=samplingRate;
 	_frequency=frequency;
-	_brightness=0.1;
+	_brightness=0.2;
 	_detuning=0.001;
 	_pan=0.5;
 	_amp=0.5;
-	_attack=2;
+	_attack=0.5;
 	_decay=0.25;
 	_sustain=0.9;
-	_release=5.0;
+	_release=0.1;
 	_envAmp=0;
-
+	_gate=false;
+	
 	envelope.setAttackRate(_attack * _samplingRate);
 	envelope.setDecayRate(_decay * _samplingRate);
 	envelope.setReleaseRate(_release * _samplingRate);
@@ -54,6 +55,8 @@ int Saw::setup(float frequency, float samplingRate) {
 	for (unsigned int i=0;i<NUM_OSC;i++) {
 		osc[i].setup(_samplingRate,Oscillator::sawtooth);
 	}
+	
+	update();
 	return 0;
 }
 
@@ -86,7 +89,13 @@ void Saw::setPan(float pan) {
 }
 
 void Saw::gate(bool on) {
+	_gate=on;
 	envelope.gate(on);
+}
+
+void Saw::toggle() {
+	_gate=!_gate;
+	envelope.gate(_gate);
 }
 
 float Saw::process(unsigned int channel) {
@@ -100,7 +109,7 @@ float Saw::process(unsigned int channel) {
 		// process envelope every two times
 		// _envAmp = envelope.process();
 	}
-	amp=amp*_amp/2*envelope.process();
+	amp=amp*_amp/10*envelope.process();
 	// mix the two oscillators
 	float out=0;
 	for (unsigned int i=0;i<NUM_OSC;i++) {

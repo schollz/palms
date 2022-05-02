@@ -1,3 +1,5 @@
+// basic comb filter 
+
 #include "Comb.h"
 #include <math.h>
 #include <stdexcept>

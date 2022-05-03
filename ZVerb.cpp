@@ -142,13 +142,13 @@ int ZVerb::setup(float wet, float roomsize, float samplingRate) {
 void ZVerb::update() {
     for (unsigned int i = 0; i < ZVERB_COMB; i++) {
         comb[i] =
-            FeedbackComb(randfloatp(0.01, 0.099), randfloatp(0.1, 0.1+roomsize_) ,
-                         randfloatp(0.1, 0.75), samplingRate_);
+            FeedbackComb(randfloatp(0.01, 0.099), randfloatp(0.1, 4.0) ,
+                         randfloat(0.1, 0.75), samplingRate_);
     }
-    for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
-        allpass[i] =
-            Allpass(randfloatp(0.01, 0.99),3,1, samplingRate_);
-    }
+    // for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
+    //     allpass[i] =
+    //         Allpass(randfloatp(0.1, 0.199),randfloatp(2,4),randfloat(0.1, 0.75), samplingRate_);
+    // }
 }
 
 float ZVerb::process(float input) {
@@ -156,9 +156,9 @@ float ZVerb::process(float input) {
     for (unsigned int i = 0; i < ZVERB_COMB; i++) {
         out += comb[i].process(input);
     }
-    for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
-        out = allpass[i].process(out);
-    }
+    // for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
+    //     out = allpass[i].process(out);
+    // }
     out=lpfilter->process(out);
     return (1-wet_)*input+(wet_*out);
 }

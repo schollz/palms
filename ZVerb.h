@@ -6,7 +6,7 @@
 
 #pragma once
 
-#define ZVERB_COMB 10
+#define ZVERB_COMB 20
 #define ZVERB_ALLPASS 4
 
 class ZVerb {

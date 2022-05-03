@@ -1,10 +1,10 @@
 #include "Saw.h"
-#include <cmath>
+#include "math.h"
 
 void Saw::setup(float fs) {
     mul_ = 1.0;
     invSampleRate_ = 1.0 / fs;
-    phase_ = M_PI;
+    phase_ = M_PI;//* ((float)rand()/RAND_MAX);
 }
 
 float Saw::process() {

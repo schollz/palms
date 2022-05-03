@@ -1,3 +1,6 @@
+#include <math.h>
+#include <cstdlib>
+
 #pragma once
 
 class Saw {

@@ -8,6 +8,9 @@
 
 #define NUM_OSC 2 // total number of oscillators
 
+float sdrandfloat(float a, float b) {
+    return ((b - a) * ((float)rand() / RAND_MAX)) + a;
+}
 SawDetuned::SawDetuned() {}
 
 SawDetuned::SawDetuned(float frequency, float samplingRate) {
@@ -23,10 +26,12 @@ int SawDetuned::setup(float frequency, float samplingRate) {
     _samplingRate = samplingRate;
     _frequency = frequency;
     _brightness = 0.2;
-    _detuning = 0.001;
+    _detuning = 0.002;
+    _detuningL=sdrandfloat(0,_detuning);
+    _detuningR=sdrandfloat(0,_detuning);
     _pan = 0.5;
-    _amp = 0.5;
-    _attack = 0.05;
+    _amp = 1.0;
+    _attack = 2.05;
     _decay = 0.1;
     _sustain = 0.9;
     _release = 0.1;
@@ -59,7 +64,11 @@ int SawDetuned::setup(float frequency, float samplingRate) {
 
 void SawDetuned::update() {
     for (unsigned int i = 0; i < 2; i++) {
-        lpFilter[i].setFc(_frequency * pow(10, _brightness));
+    	float fc=_frequency * pow(100, _brightness);
+    	if (fc>18000) {
+    		fc=18000;
+    	}
+        lpFilter[i].setFc(fc);
     }
 }
 
@@ -75,7 +84,11 @@ void SawDetuned::setBrightness(float brightness) {
     update();
 }
 
-void SawDetuned::setDetuning(float detuning) { _detuning = detuning; }
+void SawDetuned::setDetuning(float detuning) { 
+	_detuning = detuning; 
+	    _detuningL=sdrandfloat(0,_detuning);
+    _detuningR=sdrandfloat(0,_detuning);
+}
 
 void SawDetuned::setPan(float pan) { _pan = pan; }
 
@@ -105,9 +118,9 @@ float SawDetuned::process(unsigned int channel) {
     float out = 0;
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         if (i == 0) {
-            out += osc[i].process(_frequency * (1 + _detuning));
+            out += osc[i].process(_frequency * (1 + _detuning+_detuningL));
         } else {
-            out += osc[i].process(_frequency * (1 - _detuning));
+            out += osc[i].process(_frequency * (1 - _detuning-_detuningR));
         }
     }
     out = lpFilter[channel].process(out * amp);

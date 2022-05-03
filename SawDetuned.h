@@ -22,7 +22,7 @@ class SawDetuned {
     float _samplingRate;
     float _frequency;
     float _brightness;
-    float _detuning;
+    float _detuning,_detuningL,_detuningR;
     float _pan;
     float _amp, _envAmp;
     float _attack, _decay, _sustain, _release;

@@ -46,9 +46,8 @@ int SawDetuned::setup(float frequency, float samplingRate) {
         osc[i].setAmp(_amp);
     }
 
-    for (unsigned int i = 0; i < NUM_LFOS; i++) {
-        lfo[i] = LFO(sdrandfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
-    }
+    lfo[0] = LFO(sdrandfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
+    lfo[1] = LFO(sdrandfloat(1.0 / 60.0, 1.0 / 10.0), _samplingRate);
     update();
     return 0;
 }
@@ -85,6 +84,7 @@ void SawDetuned::process_block(unsigned int n) {
     for (unsigned int i = 0; i < NUM_LFOS; i++) {
         lfo[i].process(n);
     }
+    lpFilter.setFc(utils::linexp(lfo[0], -1, 1, frequency_ / 2, 12000));
 }
 
 float SawDetuned::process(unsigned int channel) {
@@ -100,7 +100,7 @@ float SawDetuned::process(unsigned int channel) {
         }
     }
     out = lpFilter.process(out) * _amp;
-    _pan = utils::linlin(lfo[0].val(), -1.0, 1.0, 0.25, 0.7);
+    _pan = utils::linlin(lfo[1].val(), -1.0, 1.0, 0.25, 0.7);
     if (channel == 0) {
         out *= _pan;
     } else {

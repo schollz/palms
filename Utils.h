@@ -4,6 +4,10 @@
 #pragma once
 
 namespace utils {
+// m  =  12*log2(fm/440 Hz) + 69
+float freq_to_midi(float f) { return 12.0 * log2(f / 440.0) + 69.0; }
+// fm  =  2^((m−69)/12)*(440 Hz).
+float midi_to_freq(float m) { return pow(2.0, (m - 69.0) / 12.0) * 440.0; }
 float linexp(float f, float slo, float shi, float dlo, float dhi) {
     if (f <= slo) {
         return dlo;

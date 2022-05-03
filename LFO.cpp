@@ -10,11 +10,9 @@ void LFO::setup(float fs, float frequency, LFO::Type type) {
 }
 
 float LFO::process(unsigned int n) {
-    for (unsigned int i = 0; i < n; i++) {
-        if (phase_ >= M_PI)
-            phase_ -= 2.0f * (float)M_PI;
-        phase_ += 2.0f * (float)M_PI * frequency_ * invSampleRate_;
-    }
+    phase_ += 2.0f * (float)M_PI * frequency_ * invSampleRate_ * n;
+    if (phase_ >= M_PI)
+        phase_ -= 2.0f * (float)M_PI;
     switch (type_) {
     default:
     case sine:

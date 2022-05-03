@@ -1,5 +1,5 @@
-#include <math.h>
 #include <cstdlib>
+#include <math.h>
 
 #pragma once
 
@@ -12,6 +12,7 @@ class Saw {
     void setup(float fs);
 
     float process();
+    float process(float frequency);
     void setFrequency(float frequency) { frequency_ = frequency; }
     void setPhase(float phase) { phase_ = phase; }
     void setAmp(float mul) { mul_ = mul; }

@@ -4,7 +4,12 @@
 void Saw::setup(float fs) {
     mul_ = 1.0;
     invSampleRate_ = 1.0 / fs;
-    phase_ = M_PI;//* ((float)rand()/RAND_MAX);
+    phase_ = M_PI; //* ((float)rand()/RAND_MAX);
+}
+
+float Saw::process(float frequency) {
+    frequency_ = frequency;
+    return process();
 }
 
 float Saw::process() {

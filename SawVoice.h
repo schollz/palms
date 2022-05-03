@@ -13,6 +13,7 @@ class SawVoice {
     SawVoice(float frequency, float samplingRate);
     int setup(float frequency, float samplingRate);
     void setFrequency(float frequency);
+    void setNote(float note);
     void setDetuning(float detuning);
     void setAmp(float amp);
     float process(unsigned int channel);
@@ -22,7 +23,6 @@ class SawVoice {
     float _samplingRate;
     float _frequency;
     float _detuning;
-    float _pan;
     float _amp;
     Biquad lpFilter;
     SawDetuned osc[NUM_OSC];

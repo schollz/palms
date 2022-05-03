@@ -6,10 +6,6 @@
 #include <stdexcept>
 #include <time.h>
 
-float sdrandfloat(float a, float b) {
-    return ((b - a) * ((float)rand() / RAND_MAX)) + a;
-}
-
 SawVoice::SawVoice() {}
 
 SawVoice::SawVoice(float frequency, float samplingRate) {
@@ -25,10 +21,7 @@ int SawVoice::setup(float frequency, float samplingRate) {
     _samplingRate = samplingRate;
     _frequency = frequency / 2;
     _brightness = 0.6;
-    _detuning = sdrandfloat(0.002, 0.003);
-    _detuningL = sdrandfloat(0, _detuning);
-    _detuningR = sdrandfloat(0, _detuning);
-    _pan = 0.5;
+    _detuning = utils::randfloat(0.002, 0.003);
     _amp = 0.1;
 
     Biquad::Settings settings{
@@ -40,51 +33,46 @@ int SawVoice::setup(float frequency, float samplingRate) {
     };
     lpFilter.setup(settings);
 
-    for (unsigned int i = 0; i < 2; i++) {
-        osc[i].setup(_samplingRate);
-        osc[i].setFrequency(_frequency);
+    for (unsigned int i = 0; i < NUM_OSC; i++) {
+        osc[i] = SawDetuned(_frequency, _samplingRate);
+        osc[i].setDetuning(_detuning);
         osc[i].setAmp(_amp);
     }
 
-    lfo[0] = LFO(sdrandfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
-    lfo[1] = LFO(sdrandfloat(1.0 / 60.0, 1.0 / 10.0), _samplingRate);
-    update();
+    lfo[0] = LFO(utils::randfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
     return 0;
 }
 
-void SawVoice::update() {
-    float fc = _frequency * pow(100, _brightness);
-    if (fc > 18000) {
-        fc = 18000;
+void SawVoice::setAmp(float amp) {
+    _amp = amp;
+    for (unsigned int i = 0; i < NUM_OSC; i++) {
+        osc[i].setAmp(_amp);
     }
-    lpFilter.setFc(fc);
 }
 
-void SawVoice::setAmp(float amp) { _amp = amp; }
+void SawVoice::setNote(float note) { setFrequency(utils::midi_to_freq(note)); }
 
 void SawVoice::setFrequency(float frequency) {
     _frequency = frequency;
-    update();
-}
-
-void SawVoice::setBrightness(float brightness) {
-    _brightness = brightness;
-    update();
+    for (unsigned int i = 0; i < NUM_OSC; i++) {
+        osc[i].setFrequency(_frequency);
+    }
 }
 
 void SawVoice::setDetuning(float detuning) {
     _detuning = detuning;
-    _detuningL = sdrandfloat(0, _detuning);
-    _detuningR = sdrandfloat(0, _detuning);
+    for (unsigned int i = 0; i < NUM_OSC; i++) {
+        osc[i].setDetuning(_detuning);
+    }
 }
-
-void SawVoice::setPan(float pan) { _pan = pan; }
 
 void SawVoice::process_block(unsigned int n) {
     for (unsigned int i = 0; i < NUM_LFOS; i++) {
         lfo[i].process(n);
     }
-    lpFilter.setFc(utils::linexp(lfo[0], -1, 1, frequency_ / 2, 12000));
+    for (unsigned int i = 0; i < NUM_OSC; i++) {
+        osc[i].process_block(n);
+    }
 }
 
 float SawVoice::process(unsigned int channel) {
@@ -93,18 +81,8 @@ float SawVoice::process(unsigned int channel) {
     }
     float out = 0;
     for (unsigned int i = 0; i < NUM_OSC; i++) {
-        if (i == 0) {
-            out += osc[i].process(_frequency * (1 + _detuning + _detuningL));
-        } else {
-            out += osc[i].process(_frequency * (1 - _detuning - _detuningR));
-        }
+        out += osc[i].process(channel);
     }
-    out = lpFilter.process(out) * _amp;
-    _pan = utils::linlin(lfo[1].val(), -1.0, 1.0, 0.25, 0.7);
-    if (channel == 0) {
-        out *= _pan;
-    } else {
-        out *= (1 - _pan);
-    }
+    // out = lpFilter.process(out) * _amp;
     return out;
 }

@@ -12,7 +12,7 @@ Allpass::Allpass() {}
 Allpass::Allpass(float delay, float decay, float mul, float samplingRate) {
     int ret;
     if ((ret = setup(delay, decay, mul, samplingRate)))
-        throw std::runtime_error("feedback comb: decay is less then delay");
+        throw std::runtime_error("allpass: decay is less then delay");
 }
 
 int Allpass::setup(float delay, float decay, float mul, float samplingRate) {

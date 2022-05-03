@@ -26,8 +26,8 @@ int SawDetuned::setup(float frequency, float samplingRate) {
     _detuning = 0.001;
     _pan = 0.5;
     _amp = 0.5;
-    _attack = 0.5;
-    _decay = 0.25;
+    _attack = 0.05;
+    _decay = 0.1;
     _sustain = 0.9;
     _release = 0.1;
     _envAmp = 0;

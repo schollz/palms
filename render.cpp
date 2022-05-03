@@ -33,11 +33,10 @@ bool setup(BelaContext* context, void* userData) {
               gFilename.c_str(), gPlayer.size(),
               gPlayer.size() / context->audioSampleRate);
 
-    osc[0] = SawDetuned(65.41 / 2, context->audioSampleRate);
-    osc[1] = SawDetuned(98.1, context->audioSampleRate);
-    osc[2] = SawDetuned(82.4, context->audioSampleRate);
-    osc[3] = SawDetuned(82.4 * 2, context->audioSampleRate);
-    osc[4] = SawDetuned(65.41 * 2, context->audioSampleRate);
+    osc[0] = SawDetuned(98.1 / 2, context->audioSampleRate);
+    for (unsigned int i = 1; i < 5; i++) {
+        osc[i] = SawDetuned(98.1 * i, context->audioSampleRate);
+    }
     osc[0].setBrightness(0.6);
 
     // initialize reverb

@@ -1,8 +1,10 @@
 #include "SawDetuned.h"
+#include "Utils.h"
 #include <Bela.h>
 #include <libraries/Biquad/Biquad.h>
 #include <math.h>
 #include <stdexcept>
+#include <time.h>
 
 float sdrandfloat(float a, float b) {
     return ((b - a) * ((float)rand() / RAND_MAX)) + a;
@@ -21,9 +23,9 @@ int SawDetuned::setup(float frequency, float samplingRate) {
         return -1;
     }
     _samplingRate = samplingRate;
-    _frequency = frequency;
-    _brightness = 0.2;
-    _detuning = 0.002;
+    _frequency = frequency / 2;
+    _brightness = 0.6;
+    _detuning = sdrandfloat(0.002, 0.003);
     _detuningL = sdrandfloat(0, _detuning);
     _detuningR = sdrandfloat(0, _detuning);
     _pan = 0.5;
@@ -45,7 +47,7 @@ int SawDetuned::setup(float frequency, float samplingRate) {
     }
 
     for (unsigned int i = 0; i < NUM_LFOS; i++) {
-        lfo[i] = LFO(sdrandfloat(1 / 30, 1 / 10), _samplingRate);
+        lfo[i] = LFO(sdrandfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
     }
     update();
     return 0;
@@ -98,7 +100,7 @@ float SawDetuned::process(unsigned int channel) {
         }
     }
     out = lpFilter.process(out) * _amp;
-    _pan = lfo[0].linlin(-1, 1, 0, 1);
+    _pan = utils::linlin(lfo[0].val(), -1.0, 1.0, 0.25, 0.7);
     if (channel == 0) {
         out *= _pan;
     } else {

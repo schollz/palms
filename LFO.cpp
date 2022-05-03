@@ -1,12 +1,14 @@
 #include "LFO.h"
 #include <cmath>
 #include <libraries/math_neon/math_neon.h>
+#include <stdlib.h>
 
 void LFO::setup(float frequency, float fs, LFO::Type type) {
     frequency_ = frequency;
     invSampleRate_ = 1.0 / fs;
     setType(type);
-    phase_ = M_PI;
+    // phase_ = M_PI;
+    phase_ = M_PI * (rand() / (float)RAND_MAX);
 }
 
 float LFO::linlin(float slo, float shi, float dlo, float dhi) {

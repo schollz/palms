@@ -20,32 +20,36 @@ int Allpass::setup(float delay, float decay, float mul, float samplingRate) {
         return -1;
     }
     _mul = mul;
-    _samplingRate = samplingRate;
+    _xamplingRate = samplingRate;
     _delay = delay;
     _k = pow(0.001, delay / decay);
-    _D = static_cast<int>(round(_samplingRate * delay));
-    _s.resize(static_cast<int>(round(_samplingRate * delay + 2)));
+    _D = static_cast<int>(round(_xamplingRate * delay));
+    _x.resize(static_cast<int>(round(_samplingRate * delay + 2)));
+    _y.resize(static_cast<int>(round(_samplingRate * delay + 2)));
     // initialize to 0
-    for (unsigned i = 0; i < _s.size(); i++)
-        _s.at(i) = 0;
+    for (unsigned i = 0; i < _x.size(); i++) {
+        _x.at(i) = 0;
+        _y.at(i) = 0;
+    }
 
-    _t = _s.size();
-    _tD = _s.size() - _D;
+    _t = _x.size();
+    _tD = _x.size() - _D;
     return 0;
 }
 
 float Allpass::process(float input) {
     _t += 1;
-    if (_t >= _s.size()) {
+    if (_t >= _x.size()) {
         _t = 0;
     }
-    // s(t) = x(t) + k * s(t - D)
-    _s.at(_t) = input + (_k * _s.at(_tD) );
+    _x.at(_t) = input;
 
     _tD += 1;
-    if (_tD >= _s.size()) {
+    if (_tD >= _x.size()) {
         _tD = 0;
     }
-    // y(t) = -k * s(t) + s(t - D)
-    return -1 * _k * _s.at(_t) + _s.at(_tD);
+    // https://ccrma.stanford.edu/~jos/pasp/Allpass_Two_Combs.html
+    // y(t) = k * x(t) + x(t - D) - k * y(t - D)
+    _y.at(_t) = _k * input + _x.at(_tD) - k * _y.at(_tD);
+    return _y.at(_t);
 }

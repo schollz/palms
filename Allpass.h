@@ -14,5 +14,6 @@ class Allpass {
   private:
     float _delay, _mul, _samplingRate, _k;
     int _D, _t, _tD;
-    std::vector<float> _s;
+    std::vector<float> _y;
+    std::vector<float> _x;
 };

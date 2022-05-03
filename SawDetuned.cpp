@@ -28,7 +28,8 @@ int SawDetuned::setup(float frequency, float samplingRate) {
     _detuning = sdrandfloat(0.002, 0.003);
     _detuningL = sdrandfloat(0, _detuning);
     _detuningR = sdrandfloat(0, _detuning);
-    _pan = 0.5;
+    _pan = 0.0;
+    _spread = 0.0;
     _amp = 0.1;
 
     Biquad::Settings settings{
@@ -100,11 +101,13 @@ float SawDetuned::process(unsigned int channel) {
         }
     }
     out = lpFilter.process(out) * _amp;
-    _pan = utils::linlin(lfo[1].val(), -1.0, 1.0, 0.25, 0.7);
+    float pan = utils::clamp(
+        utils::linlin(lfo[1].val(), -1.0, 1.0, 0.5 - _spread, 0.5 + _spread), 0,
+        1);
     if (channel == 0) {
-        out *= _pan;
+        out *= pan;
     } else {
-        out *= (1 - _pan);
+        out *= (1 - pan);
     }
     return out;
 }

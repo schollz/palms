@@ -1,4 +1,12 @@
 namespace utils {
+float linexp(float f, float slo, float shi, float dlo, float dhi) {
+    if (f <= slo) {
+        return dlo;
+    } else if (f >= shi) {
+        return dhi;
+    }
+    return (f - slo) / (shi - slo) * (dhi - dlo) + dlo;
+}
 float linlin(float f, float slo, float shi, float dlo, float dhi) {
     if (f <= slo) {
         return dlo;

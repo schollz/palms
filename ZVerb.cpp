@@ -30,12 +30,11 @@ void ZVerb::update() {
                                utils::randfloatp(0.1, 4.0),
                                utils::randfloat(0.1, 0.75), samplingRate_);
     }
-    // for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
-    //     allpass[i] =
-    //         Allpass(utils::randfloatp(0.1,
-    //         0.199),utils::randfloatp(2,4),utils::randfloat(0.1, 0.75),
-    //         samplingRate_);
-    // }
+    for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
+        allpass[i] =
+            Allpass(utils::randfloatp(0.1, 0.199), utils::randfloatp(2, 4),
+                    utils::randfloat(0.1, 0.75), samplingRate_);
+    }
 }
 
 float ZVerb::process(float input) {
@@ -43,9 +42,9 @@ float ZVerb::process(float input) {
     for (unsigned int i = 0; i < ZVERB_COMB; i++) {
         out += comb[i].process(input);
     }
-    // for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
-    //     out = allpass[i].process(out);
-    // }
+    for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
+        out = allpass[i].process(out);
+    }
     out = lpfilter->process(out);
     return (1 - wet_) * input + (wet_ * out);
 }

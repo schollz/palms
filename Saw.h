@@ -15,7 +15,7 @@ class Saw {
     float process(float frequency);
     void setFrequency(float frequency) { frequency_ = frequency; }
     void setPhase(float phase) { phase_ = phase; }
-    void setAmp(float mul) { mul_ = mul; }
+    void setAmp(float mul) { mul_ = mul / M_PI; }
     float getPhase() { return phase_; }
     float getFrequency() { return frequency_; }
 

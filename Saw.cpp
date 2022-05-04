@@ -2,7 +2,7 @@
 #include "math.h"
 
 void Saw::setup(float fs) {
-    mul_ = 1.0;
+    mul_ = 1.f / (float)M_PI;
     invSampleRate_ = 1.0 / fs;
     phase_ = M_PI; //* ((float)rand()/RAND_MAX);
 }
@@ -17,5 +17,5 @@ float Saw::process() {
     if (phase_ >= M_PI)
         phase_ -= 2.0f * (float)M_PI;
 
-    return 1.f / (float)M_PI * phase_ * mul_;
+    return phase_ * mul_;
 }

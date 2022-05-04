@@ -87,6 +87,10 @@ void SawDetuned::process_block(unsigned int n) {
     }
     lpFilter.setFc(clamp(
         linexp(lfo[0].val(), -1, 1, _frequency, _frequency * 16), 10, 20000));
+    _panVal = clamp(linlin(lfo[1].val(), -1.0, 1.0, 0.5 - _spread / 2.0,
+                           0.5 + _spread / 2.0) +
+                        _pan,
+                    0, 1);
 }
 
 float SawDetuned::process(unsigned int channel) {
@@ -102,14 +106,10 @@ float SawDetuned::process(unsigned int channel) {
         }
     }
     out = lpFilter.process(out) * _amp;
-    float pan = clamp(linlin(lfo[1].val(), -1.0, 1.0, 0.5 - _spread / 2.0,
-                             0.5 + _spread / 2.0) +
-                          _pan,
-                      0, 1);
     if (channel == 0) {
-        out *= pan;
+        out *= _panVal;
     } else {
-        out *= (1 - pan);
+        out *= (1 - _panVal);
     }
     return out;
 }

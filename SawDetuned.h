@@ -26,7 +26,7 @@ class SawDetuned {
     float _brightness;
     float _detuning, _detuningL, _detuningR;
     float _spread;
-    float _pan;
+    float _pan, _panVal;
     float _amp;
     Biquad lpFilter;
     Saw osc[NUM_OSC];

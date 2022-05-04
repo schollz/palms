@@ -19,7 +19,7 @@ class SawVoice {
 
   private:
     static const int NUM_LFOS = 1;
-    static const int NUM_OSC = 2;
+    static const int NUM_OSC = 3;
     float _samplingRate;
     float _frequency;
     float _detuning;

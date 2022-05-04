@@ -59,6 +59,14 @@ void SawDetuned::update() {
         fc = 18000;
     }
     lpFilter.setFc(fc);
+
+    for (unsigned int i = 0; i < NUM_OSC; i++) {
+        if (i == 0) {
+            osc[i].setFrequency(_frequency * (1 + _detuning + _detuningL));
+        } else {
+            osc[i].setFrequency(_frequency * (1 - _detuning - _detuningR));
+        }
+    }
 }
 
 void SawDetuned::setAmp(float amp) { _amp = amp; }
@@ -99,11 +107,7 @@ float SawDetuned::process(unsigned int channel) {
     }
     float out = 0;
     for (unsigned int i = 0; i < NUM_OSC; i++) {
-        if (i == 0) {
-            out += osc[i].process(_frequency * (1 + _detuning + _detuningL));
-        } else {
-            out += osc[i].process(_frequency * (1 - _detuning - _detuningR));
-        }
+        out += osc[i].process();
     }
     out = lpFilter.process(out) * _amp;
     if (channel == 0) {

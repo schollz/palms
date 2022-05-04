@@ -9,7 +9,6 @@ void Saw::setup(float fs) {
 
 float Saw::process(float frequency) {
     frequency_ = frequency;
-    phaseinc_ = 2.0f * (float)M_PI * frequency_ * invSampleRate_;
     return process();
 }
 

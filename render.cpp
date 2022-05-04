@@ -1,7 +1,6 @@
 #include "I1P.h"
 #include "MonoFilePlayer.h"
 #include "SawVoice.h"
-#include "ZVerb.h"
 #include <Bela.h>
 #include <chrono>
 #include <cmath>
@@ -12,7 +11,6 @@ std::string gFilename = "drums.wav";
 MonoFilePlayer gPlayer;
 
 SawVoice voice[NUM_VOICES];
-ZVerb verb[2];
 I1P* dcBlock[2];
 
 float beats;
@@ -41,9 +39,7 @@ bool setup(BelaContext* context, void* userData) {
         voice[i] = SawVoice(98.1 * (i + 1), context->audioSampleRate);
     }
 
-    // initialize reverb
     for (unsigned int i = 0; i < 2; i++) {
-        verb[i] = ZVerb(0.5, 1, context->audioSampleRate);
         dcBlock[i] = new I1P(10.0 / context->audioSampleRate);
     }
 
@@ -76,7 +72,6 @@ void render(BelaContext* context, void* userData) {
             for (unsigned int i = 0; i < NUM_VOICES; i++) {
                 out += voice[i].process(channel);
             }
-            // out = verb[channel].process(out);
             out -= dcBlock[channel]->process(out);
             audioWrite(context, n, channel, out);
         }

@@ -4,15 +4,14 @@
 #include <stdlib.h>
 
 void LFO::setup(float frequency, float fs, LFO::Type type) {
-    frequency_ = frequency;
-    invSampleRate_ = 1.0 / fs;
     setType(type);
-    // lfos start with random phase
+    invSampleRate_ = 1.0 / fs;
+    setFrequency(frequency);
     phase_ = M_PI * (rand() / (float)RAND_MAX);
 }
 
 void LFO::process(unsigned int n) {
-    phase_ += 2.0f * (float)M_PI * frequency_ * invSampleRate_ * n;
+    phase_ += phaseinc_ * n;
     if (phase_ >= M_PI)
         phase_ -= 2.0f * (float)M_PI;
     switch (type_) {

@@ -111,9 +111,7 @@ float SawDetuned::process(unsigned int channel) {
     }
     out = lpFilter.process(out) * _amp;
     if (channel == 0) {
-        out *= _panVal;
-    } else {
-        out *= (1 - _panVal);
+        return out * _panVal;
     }
-    return out;
+    return out * (1 - _panVal);
 }

@@ -81,6 +81,7 @@ float SawVoice::process(unsigned int channel) {
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         out += osc[i].process(channel);
     }
+    // TODO: lpf
     // out = lpFilter.process(out) * _amp;
     return out;
 }

@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include <cstdlib>
+#include <libraries/math_neon/math_neon.h>
 #include <math.h>
 #include <vector>
 
@@ -8,7 +9,7 @@
 inline float freq_to_midi(float f) { return 12.0 * log2(f / 440.0) + 69.0; }
 // fm  =  2^((m-69)/12)*(440 Hz).
 inline float midi_to_freq(float m) {
-    return pow(2.0, (m - 69.0) / 12.0) * 440.0;
+    return powf_neon(2.0, (m - 69.0) / 12.0) * 440.0;
 }
 inline float linexp(float f, float slo, float shi, float dlo, float dhi) {
     if (f <= slo) {
@@ -16,7 +17,7 @@ inline float linexp(float f, float slo, float shi, float dlo, float dhi) {
     } else if (f >= shi) {
         return dhi;
     }
-    return pow(dhi / dlo, (f - slo) / (shi - slo)) * dlo;
+    return powf_neon(dhi / dlo, (f - slo) / (shi - slo)) * dlo;
 }
 inline float linlin(float f, float slo, float shi, float dlo, float dhi) {
     if (f <= slo) {

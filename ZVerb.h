@@ -1,13 +1,13 @@
 #include "Allpass.h"
 #include "FeedbackComb.h"
 #include "I1P.h"
-#include <vector>
 #include <cstdlib>
+#include <vector>
 
 #pragma once
 
-#define ZVERB_COMB 20
-#define ZVERB_ALLPASS 4
+#define ZVERB_COMB 12
+#define ZVERB_ALLPASS 1
 
 class ZVerb {
   public:
@@ -26,5 +26,5 @@ class ZVerb {
     float wet_, roomsize_, samplingRate_;
     FeedbackComb comb[ZVERB_COMB];
     Allpass allpass[ZVERB_ALLPASS];
-    I1P *lpfilter;
+    I1P* lpfilter;
 };

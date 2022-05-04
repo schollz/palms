@@ -1,6 +1,5 @@
 #include "SawVoice.h"
 #include "Utils.h"
-#include <Bela.h>
 #include <libraries/Biquad/Biquad.h>
 #include <math.h>
 #include <stdexcept>
@@ -20,9 +19,8 @@ int SawVoice::setup(float frequency, float samplingRate) {
     }
     _samplingRate = samplingRate;
     _frequency = frequency / 2;
-    _brightness = 0.6;
-    _detuning = utils::randfloat(0.002, 0.003);
-    _amp = 0.1;
+    _detuning = randfloat(0.002, 0.003);
+    _amp = 0.25;
 
     Biquad::Settings settings{
         .fs = _samplingRate,
@@ -39,7 +37,7 @@ int SawVoice::setup(float frequency, float samplingRate) {
         osc[i].setAmp(_amp);
     }
 
-    lfo[0] = LFO(utils::randfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
+    lfo[0] = LFO(randfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
     return 0;
 }
 
@@ -50,7 +48,7 @@ void SawVoice::setAmp(float amp) {
     }
 }
 
-void SawVoice::setNote(float note) { setFrequency(utils::midi_to_freq(note)); }
+void SawVoice::setNote(float note) { setFrequency(midi_to_freq(note)); }
 
 void SawVoice::setFrequency(float frequency) {
     _frequency = frequency;

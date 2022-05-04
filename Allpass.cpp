@@ -20,10 +20,10 @@ int Allpass::setup(float delay, float decay, float mul, float samplingRate) {
         return -1;
     }
     _mul = mul;
-    _xamplingRate = samplingRate;
+    _samplingRate = samplingRate;
     _delay = delay;
     _k = pow(0.001, delay / decay);
-    _D = static_cast<int>(round(_xamplingRate * delay));
+    _D = static_cast<int>(round(_samplingRate * delay));
     _x.resize(static_cast<int>(round(_samplingRate * delay + 2)));
     _y.resize(static_cast<int>(round(_samplingRate * delay + 2)));
     // initialize to 0
@@ -50,6 +50,6 @@ float Allpass::process(float input) {
     }
     // https://ccrma.stanford.edu/~jos/pasp/Allpass_Two_Combs.html
     // y(t) = k * x(t) + x(t - D) - k * y(t - D)
-    _y.at(_t) = _k * input + _x.at(_tD) - k * _y.at(_tD);
+    _y.at(_t) = _k * input + _x.at(_tD) - _k * _y.at(_tD);
     return _y.at(_t);
 }

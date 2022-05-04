@@ -19,21 +19,19 @@ int ZVerb::setup(float wet, float roomsize, float samplingRate) {
     wet_ = wet;
     roomsize_ = roomsize;
     samplingRate_ = samplingRate;
-    lpfilter = new I1P(8000.0 / samplingRate_);
+    lpfilter = new I1P(1500.0 / samplingRate_);
     update();
     return 0;
 }
 
 void ZVerb::update() {
     for (unsigned int i = 0; i < ZVERB_COMB; i++) {
-        comb[i] = FeedbackComb(utils::randfloatp(0.01, 0.099),
-                               utils::randfloatp(0.1, 4.0),
-                               utils::randfloat(0.1, 0.75), samplingRate_);
+        comb[i] = FeedbackComb(randfloatp(0.01, 0.099), randfloatp(0.1, 4.0),
+                               randfloat(0.1, 0.75), samplingRate_);
     }
     for (unsigned int i = 0; i < ZVERB_ALLPASS; i++) {
-        allpass[i] =
-            Allpass(utils::randfloatp(0.1, 0.199), utils::randfloatp(2, 4),
-                    utils::randfloat(0.1, 0.75), samplingRate_);
+        allpass[i] = Allpass(randfloatp(0.05, 0.199), randfloat(2, 4),
+                             randfloat(0.1, 0.75), samplingRate_);
     }
 }
 

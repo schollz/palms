@@ -4,8 +4,6 @@
 #include <vector>
 
 #pragma once
-#define NUM_LFOS 2
-#define NUM_OSC 2
 
 class SawDetuned {
   public:
@@ -21,10 +19,13 @@ class SawDetuned {
     void process_block(unsigned int n);
 
   private:
+    static const int NUM_LFOS = 2;
+    static const int NUM_OSC = 2;
     float _samplingRate;
     float _frequency;
     float _brightness;
     float _detuning, _detuningL, _detuningR;
+    float _spread;
     float _pan;
     float _amp;
     Biquad lpFilter;

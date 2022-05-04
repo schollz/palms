@@ -1,14 +1,16 @@
+#ifndef UTILS_H
+#define UTILS_H
+#include <cstdlib>
 #include <math.h>
 #include <vector>
 
-#pragma once
-
-namespace utils {
 // m  =  12*log2(fm/440 Hz) + 69
-float freq_to_midi(float f) { return 12.0 * log2(f / 440.0) + 69.0; }
-// fm  =  2^((m−69)/12)*(440 Hz).
-float midi_to_freq(float m) { return pow(2.0, (m - 69.0) / 12.0) * 440.0; }
-float linexp(float f, float slo, float shi, float dlo, float dhi) {
+inline float freq_to_midi(float f) { return 12.0 * log2(f / 440.0) + 69.0; }
+// fm  =  2^((m-69)/12)*(440 Hz).
+inline float midi_to_freq(float m) {
+    return pow(2.0, (m - 69.0) / 12.0) * 440.0;
+}
+inline float linexp(float f, float slo, float shi, float dlo, float dhi) {
     if (f <= slo) {
         return dlo;
     } else if (f >= shi) {
@@ -16,7 +18,7 @@ float linexp(float f, float slo, float shi, float dlo, float dhi) {
     }
     return pow(dhi / dlo, (f - slo) / (shi - slo)) * dlo;
 }
-float linlin(float f, float slo, float shi, float dlo, float dhi) {
+inline float linlin(float f, float slo, float shi, float dlo, float dhi) {
     if (f <= slo) {
         return dlo;
     } else if (f >= shi) {
@@ -24,7 +26,7 @@ float linlin(float f, float slo, float shi, float dlo, float dhi) {
     }
     return (f - slo) / (shi - slo) * (dhi - dlo) + dlo;
 }
-float clamp(float f, float slo, float shi) {
+inline float clamp(float f, float slo, float shi) {
     if (f < slo) {
         return slo;
     } else if (f > shi) {
@@ -33,7 +35,7 @@ float clamp(float f, float slo, float shi) {
     return f;
 }
 
-float randfloat(float a, float b) {
+inline float randfloat(float a, float b) {
     return ((b - a) * ((float)rand() / RAND_MAX)) + a;
 }
 
@@ -142,10 +144,12 @@ const std::vector<float> primes_under = {
     9833, 9839, 9851, 9857, 9859, 9871, 9883, 9887, 9901, 9907, 9923, 9929,
     9931, 9941, 9949, 9967, 9973};
 
-float randprime() { return primes_under[rand() % primes_under.size()] / 10000; }
+inline float randprime() {
+    return primes_under[rand() % primes_under.size()] / 10000;
+}
 
-float randfloatp(float a, float b) {
+inline float randfloatp(float a, float b) {
     return ((b - a) * ((float)randprime()) + a);
 }
 
-} // namespace utils
+#endif

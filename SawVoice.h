@@ -4,8 +4,6 @@
 #include <vector>
 
 #pragma once
-#define NUM_LFOS 1
-#define NUM_OSC 5
 
 class SawVoice {
   public:
@@ -20,6 +18,8 @@ class SawVoice {
     void process_block(unsigned int n);
 
   private:
+    static const int NUM_LFOS = 1;
+    static const int NUM_OSC = 5;
     float _samplingRate;
     float _frequency;
     float _detuning;

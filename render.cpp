@@ -16,7 +16,7 @@ SawVoice voice[NUM_VOICES];
 I1P* dcBlock[2];
 
 float beats;
-float bpm = 60;
+float bpm = 57;
 
 // timing measurements
 bool timedRender = false;

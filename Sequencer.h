@@ -11,6 +11,7 @@ class Sequencer {
     Sequencer(std::vector<float> durs, std::vector<float> vals) {
         _durs = durs;
         _vals = vals;
+        _i = 0;
     };
     bool tick() {
         _dur += 1.0;
@@ -18,7 +19,7 @@ class Sequencer {
             return false;
         }
         _dur = 0;
-        _i += 1.0;
+        _i++;
         if (_i >= _durs.size()) {
             _i = 0;
         }
@@ -27,7 +28,7 @@ class Sequencer {
     float val() { return _vals.at(_i); };
 
   private:
-    float _i;
+    unsigned int _i;
     float _dur;
     std::vector<float> _durs;
     std::vector<float> _vals;

@@ -1,9 +1,11 @@
 #include "I1P.h"
 #include "MonoFilePlayer.h"
 #include "SawVoice.h"
+#include "Sequencer.h"
 #include <Bela.h>
 #include <chrono>
 #include <cmath>
+#include <vector>
 
 static const int NUM_VOICES = 6;
 
@@ -22,7 +24,20 @@ float timingResult = 0.0;
 std::chrono::steady_clock::time_point timingStart;
 std::chrono::steady_clock::time_point timingEnd;
 
+// sequencer
+Sequencer sequence[NUM_VOICES];
+
 bool setup(BelaContext* context, void* userData) {
+
+    // setup sequencer
+    std::vector<float> beats = {3.0, 3.0, 6.0, 4.0};
+    sequence[0] = Sequencer(std::vector<float>{3, 3, 6, 4},
+                            std::vector<float>{28, 28, 29, 26});
+    sequence[1] = Sequencer(beats, std::vector<float>{43, 48, 45, 50});
+    sequence[2] = Sequencer(beats, std::vector<float>{59, 57, 57, 59});
+    sequence[3] = Sequencer(beats, std::vector<float>{64, 69, 65, 59});
+    sequence[4] = Sequencer(beats, std::vector<float>{59, 52, 48, 55});
+    sequence[5] = Sequencer(beats, std::vector<float>{79, 72, 72, 71});
 
     if (!gPlayer.setup(gFilename)) {
         rt_printf("Error loading audio file '%s'\n", gFilename.c_str());
@@ -53,6 +68,12 @@ void render(BelaContext* context, void* userData) {
         // new beat
         rt_printf("beat (%2.0f bpm): %2.3f ", bpm, beats);
         timedRender = true;
+        for (unsigned int i = 0; i < NUM_VOICES; i++) {
+            if (sequence[i].tick() == true) {
+                rt_printf("%d[%2.1f] ", i, sequence[i].val());
+                voice[i].setNote(sequence[i].val());
+            }
+        }
     }
 
     if (timedRender == true) {

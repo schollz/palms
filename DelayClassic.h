@@ -1,5 +1,5 @@
-#include "CombFeedback.h"
 #include "Delay.h"
+#include "FeedbackComb.h"
 #include "math.h"
 #pragma once
 
@@ -15,18 +15,18 @@ class DelayClassic {
     void setup(float max_delay_time, float delay_time, float decay_time,
                float max_offset, float offset, float fs);
 
-    float process();
+    float process(float input);
     void process_block(unsigned int n);
-    void setDelay(float delay_time){_delay_time = delay_time};
-    void setDecay(float decay_time){_decay_time = decay_time};
-    void setOffset(float offset){_offset = offset};
+    void setDelay(float delay_time) { _delay_time = delay_time; };
+    void setDecay(float decay_time) { _decay_time = decay_time; };
+    void setOffset(float offset) { _offset = offset; };
 
   private:
     int _i = 0;
-    static const float half_pi = M_PI / 2.0;
+    float half_pi = M_PI / 2.0;
     float _interp = 0;     // > 0 = interpolating, >1 = done
     float _interp_inc = 0; // samples
     unsigned int _delay_time, _decay_time, _offset, _max_delay_time;
-    CombFeedback _comb[2];
-    Delay _delay[2];
+    FeedbackComb comb[2];
+    Delay delay[2];
 };

@@ -20,7 +20,7 @@ int FeedbackComb::setup(float delay_time, float decay_time, float mul,
     _mul = mul;
     _samplingRate = samplingRate;
     _delay_time = delay_time;
-    _decay_time = _decay_time;
+    _decay_time = decay_time;
     _alpha = pow(0.001, delay_time / decay_time);
     _K = static_cast<int>(round(_samplingRate * delay_time));
     buf.resize(static_cast<int>(round(_samplingRate * delay_time + 2)));
@@ -33,14 +33,18 @@ int FeedbackComb::setup(float delay_time, float decay_time, float mul,
     return 0;
 }
 
-void setDelay(float decay_time) {
+float FeedbackComb::getDelay() { return _delay_time; }
+
+float FeedbackComb::getDecay() { return _decay_time; }
+
+void FeedbackComb::setDelay(float delay_time) {
     _delay_time = delay_time;
-    _alpha = pow(0.001, delay_time / decay_time);
+    _alpha = pow(0.001, _delay_time / _decay_time);
 }
 
-void setDecay(float decay_time) {
+void FeedbackComb::setDecay(float decay_time) {
     _decay_time = decay_time;
-    _alpha = pow(0.001, delay_time / decay_time);
+    _alpha = pow(0.001, _delay_time / _decay_time);
 }
 
 float FeedbackComb::process(float input) {

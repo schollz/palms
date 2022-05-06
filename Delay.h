@@ -1,3 +1,4 @@
+#include <math.h>
 #include <vector>
 
 #pragma once
@@ -16,7 +17,7 @@ class Delay {
             _j = buf.size() + _j;
         }
     };
-    float getDelay(float delay) { return _delay; };
+    float getDelay() { return _delay; };
 
   private:
     float _delay, _samplingRate;

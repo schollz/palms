@@ -11,7 +11,8 @@ class Sequencer {
     Sequencer(std::vector<float> durs, std::vector<float> vals) {
         _durs = durs;
         _vals = vals;
-        _i = 0;
+        _i = _durs.size() - 1;
+        _dur = 10000.0;
     };
     bool tick() {
         _dur += 1.0;

@@ -23,8 +23,7 @@ int SawDetuned::setup(float frequency, float samplingRate) {
         return -1;
     }
     _samplingRate = samplingRate;
-    _frequency = frequency / 2;
-    _brightness = 0.6;
+    _frequency = frequency;
     _detuning = sdrandfloat(0.002, 0.003);
     _detuningL = sdrandfloat(0, _detuning);
     _detuningR = sdrandfloat(0, _detuning);
@@ -43,23 +42,21 @@ int SawDetuned::setup(float frequency, float samplingRate) {
 
     for (unsigned int i = 0; i < 2; i++) {
         osc[i].setup(_samplingRate);
-        osc[i].setFrequency(_frequency);
         osc[i].setAmp(_amp);
     }
+    setFrequency(frequency);
 
     lfo[0] = LFO(sdrandfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
     lfo[1] = LFO(sdrandfloat(1.0 / 60.0, 1.0 / 10.0), _samplingRate);
-    update();
     return 0;
 }
 
-void SawDetuned::update() {
-    float fc = _frequency * pow(100, _brightness);
-    if (fc > 18000) {
-        fc = 18000;
-    }
-    lpFilter.setFc(fc);
+void SawDetuned::update() {}
 
+void SawDetuned::setAmp(float amp) { _amp = amp; }
+
+void SawDetuned::setFrequency(float frequency) {
+    _frequency = frequency;
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         if (i == 0) {
             osc[i].setFrequency(_frequency * (1 + _detuning + _detuningL));
@@ -67,18 +64,6 @@ void SawDetuned::update() {
             osc[i].setFrequency(_frequency * (1 - _detuning - _detuningR));
         }
     }
-}
-
-void SawDetuned::setAmp(float amp) { _amp = amp; }
-
-void SawDetuned::setFrequency(float frequency) {
-    _frequency = frequency;
-    update();
-}
-
-void SawDetuned::setBrightness(float brightness) {
-    _brightness = brightness;
-    update();
 }
 
 void SawDetuned::setDetuning(float detuning) {

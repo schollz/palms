@@ -38,6 +38,7 @@ int SawVoice::setup(float frequency, float samplingRate) {
     }
 
     lfo[0] = LFO(randfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
+    lfo[1] = LFO(randfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
     return 0;
 }
 
@@ -71,6 +72,8 @@ void SawVoice::process_block(unsigned int n) {
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         osc[i].process_block(n);
     }
+    lpFilter.setFc(linexp(lfo[1].val(), -1, 1, 1000, 18000));
+    lfo[0].setFrequency(linlin(lfo[0].val(), -1, 1, 0.03, 0.1));
 }
 
 float SawVoice::process(unsigned int channel) {
@@ -81,7 +84,6 @@ float SawVoice::process(unsigned int channel) {
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         out += osc[i].process(channel);
     }
-    // TODO: lpf
-    // out = lpFilter.process(out) * _amp;
+    out = lpFilter.process(out) * _amp;
     return out;
 }

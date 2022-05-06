@@ -1,3 +1,9 @@
+## palms
+
+This is a six-voice sawtooth drone.
+
+Each voice (`SawVoice`) is composed of of three detuned saw waveforms (`SawDetuned`). Each detuned saw waveform is mmade of two sawtooth oscillators (`Saw`) which are tuned close to the requested frequency.
+
 ## ideas
 
 target supercollider oscilators:

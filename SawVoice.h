@@ -18,7 +18,7 @@ class SawVoice {
     void process_block(unsigned int n);
 
   private:
-    static const int NUM_LFOS = 1;
+    static const int NUM_LFOS = 2;
     static const int NUM_OSC = 3;
     float _samplingRate;
     float _frequency;

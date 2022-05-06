@@ -11,7 +11,6 @@ class SawDetuned {
     SawDetuned(float frequency, float samplingRate);
     int setup(float frequency, float samplingRate);
     void setFrequency(float frequency);
-    void setBrightness(float brightness);
     void setDetuning(float detuning);
     void setPan(float pan);
     void setAmp(float amp);
@@ -23,7 +22,6 @@ class SawDetuned {
     static const int NUM_OSC = 2;
     float _samplingRate;
     float _frequency;
-    float _brightness;
     float _detuning, _detuningL, _detuningR;
     float _spread;
     float _pan, _panVal;

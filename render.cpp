@@ -76,6 +76,7 @@ void render(BelaContext* context, void* userData) {
             audioWrite(context, n, channel, out);
         }
     }
+
     // perform the timing on the first render
     if (timedRender == true) {
         timingEnd = std::chrono::steady_clock::now();

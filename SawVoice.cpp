@@ -20,7 +20,9 @@ int SawVoice::setup(float frequency, float samplingRate) {
     _samplingRate = samplingRate;
     _frequency = frequency / 2;
     _detuning = randfloat(0.002, 0.003);
-    _amp = 0.25;
+    _amp = 1.0;
+    _amp = linlin(freq_to_midi(frequency), 0, 128, 2.0, 0);
+    _amp = clamp(_amp, 0, 1);
 
     Biquad::Settings settings{
         .fs = _samplingRate,
@@ -39,9 +41,11 @@ int SawVoice::setup(float frequency, float samplingRate) {
 
     lfo[0] = LFO(randfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
     lfo[1] = LFO(randfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
+    lfo[2] = LFO(randfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);
     return 0;
 }
 
+float SawVoice::getAmp() { return _amp; }
 void SawVoice::setAmp(float amp) {
     _amp = amp;
     for (unsigned int i = 0; i < NUM_OSC; i++) {
@@ -49,7 +53,7 @@ void SawVoice::setAmp(float amp) {
     }
 }
 
-void SawVoice::setNote(float note) { setFrequency(midi_to_freq(note)); }
+void SawVoice::setNote(float note) { setFrequency(midi_to_freq(note) / 2); }
 
 void SawVoice::setFrequency(float frequency) {
     _frequency = frequency;
@@ -69,11 +73,13 @@ void SawVoice::process_block(unsigned int n) {
     for (unsigned int i = 0; i < NUM_LFOS; i++) {
         lfo[i].process(n);
     }
+    float pan = linlin(lfo[2].val(), -1, 1, -0.5, 0.5);
     for (unsigned int i = 0; i < NUM_OSC; i++) {
+        osc[i].setPan(pan);
         osc[i].process_block(n);
     }
-    lpFilter.setFc(linexp(lfo[1].val(), -1, 1, 1000, 18000));
-    lfo[0].setFrequency(linlin(lfo[0].val(), -1, 1, 0.03, 0.1));
+    lpFilter.setFc(linexp(lfo[1].val(), -1, 1, 100, 18000));
+    lfo[1].setFrequency(linlin(lfo[0].val(), -1, 1, 0.03, 0.1));
 }
 
 float SawVoice::process(unsigned int channel) {

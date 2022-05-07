@@ -5,6 +5,8 @@
 #include <Bela.h>
 #include <chrono>
 #include <cmath>
+#include <libraries/ADSR/ADSR.h>
+#include <libraries/Biquad/Biquad.h>
 #include <vector>
 
 static const int NUM_VOICES = 6;
@@ -16,7 +18,7 @@ SawVoice voice[NUM_VOICES];
 I1P* dcBlock[2];
 
 float beats;
-float bpm = 57;
+float bpm = 50;
 
 // timing measurements
 bool timedRender = false;
@@ -25,19 +27,55 @@ std::chrono::steady_clock::time_point timingStart;
 std::chrono::steady_clock::time_point timingEnd;
 
 // sequencer
-Sequencer sequence[NUM_VOICES];
+Sequencer sequence[6];
+
+Biquad lowshelf, hishelf, bassboost;
+
+ADSR envelope;
 
 bool setup(BelaContext* context, void* userData) {
 
     // setup sequencer
-    std::vector<float> beats = {3.0, 3.0, 6.0, 4.0};
+    std::vector<float> beats = {4.0, 4.0, 4.0, 4.0};
     sequence[0] = Sequencer(std::vector<float>{3, 3, 6, 4},
                             std::vector<float>{28, 28, 29, 26});
     sequence[1] = Sequencer(beats, std::vector<float>{43, 48, 45, 50});
-    sequence[2] = Sequencer(beats, std::vector<float>{59, 57, 57, 59});
+    sequence[2] = Sequencer(beats, std::vector<float>{59, 57, 57, 59 - 12});
     sequence[3] = Sequencer(beats, std::vector<float>{64, 69, 65, 59});
     sequence[4] = Sequencer(beats, std::vector<float>{59, 52, 48, 55});
-    sequence[5] = Sequencer(beats, std::vector<float>{79, 72, 72, 71});
+    sequence[5] = Sequencer(beats, std::vector<float>{79, 72, 72, 71 - 12});
+
+    // Set ADSR parameters
+    envelope.setAttackRate(11 * context->audioSampleRate);
+    envelope.setDecayRate(1 * context->audioSampleRate);
+    envelope.setReleaseRate(1.0 * context->audioSampleRate);
+    envelope.setSustainLevel(1.0);
+    envelope.gate(true);
+
+    Biquad::Settings settings{
+        .fs = context->audioSampleRate,
+        .cutoff = 150,
+        .type = Biquad::lowshelf,
+        .q = 0.707,
+        .peakGainDb = 8,
+    };
+    lowshelf.setup(settings);
+    Biquad::Settings settings2{
+        .fs = context->audioSampleRate,
+        .cutoff = 6050,
+        .type = Biquad::highshelf,
+        .q = 0.707,
+        .peakGainDb = -8,
+    };
+    hishelf.setup(settings2);
+    Biquad::Settings settings3{
+        .fs = context->audioSampleRate,
+        .cutoff = 60,
+        .type = Biquad::peak,
+        .q = 0.707,
+        .peakGainDb = 8,
+    };
+    bassboost.setup(settings3);
 
     if (!gPlayer.setup(gFilename)) {
         rt_printf("Error loading audio file '%s'\n", gFilename.c_str());
@@ -49,8 +87,7 @@ bool setup(BelaContext* context, void* userData) {
               gFilename.c_str(), gPlayer.size(),
               gPlayer.size() / context->audioSampleRate);
 
-    voice[0] = SawVoice(98.1, context->audioSampleRate);
-    for (unsigned int i = 1; i < NUM_VOICES; i++) {
+    for (unsigned int i = 0; i < NUM_VOICES; i++) {
         voice[i] = SawVoice(98.1 * (i + 1), context->audioSampleRate);
     }
 
@@ -65,8 +102,15 @@ void render(BelaContext* context, void* userData) {
     float beats_old = beats;
     beats += (bpm / 60) * context->audioFrames / context->audioSampleRate;
     if (floor(beats) != floor(beats_old)) {
+        // randomly get
+        if ((float)rand() / RAND_MAX < 0.05) {
+            envelope.gate(false);
+        } else {
+            envelope.gate(true);
+        }
         // new beat
         rt_printf("beat (%2.0f bpm): %2.3f ", bpm, beats);
+        rt_printf("amp%2.3f", voice[0].getAmp());
         timedRender = true;
         for (unsigned int i = 0; i < NUM_VOICES; i++) {
             if (sequence[i].tick() == true) {
@@ -93,7 +137,12 @@ void render(BelaContext* context, void* userData) {
             for (unsigned int i = 0; i < NUM_VOICES; i++) {
                 out += voice[i].process(channel);
             }
+            out = lowshelf.process(out / 2.0);
+            out = hishelf.process(out);
+            out = bassboost.process(out);
             out -= dcBlock[channel]->process(out);
+            out = tanh(out);
+            out *= envelope.process();
             audioWrite(context, n, channel, out);
         }
     }

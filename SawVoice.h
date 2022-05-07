@@ -14,11 +14,12 @@ class SawVoice {
     void setNote(float note);
     void setDetuning(float detuning);
     void setAmp(float amp);
+    float getAmp();
     float process(unsigned int channel);
     void process_block(unsigned int n);
 
   private:
-    static const int NUM_LFOS = 2;
+    static const int NUM_LFOS = 3;
     static const int NUM_OSC = 3;
     float _samplingRate;
     float _frequency;

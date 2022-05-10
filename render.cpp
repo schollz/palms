@@ -73,8 +73,7 @@ bool setup(BelaContext* context, void* userData) {
 
     // setup sequencer
     std::vector<float> beats = {4.0, 4.0, 4.0, 4.0};
-    sequence[0] = Sequencer(std::vector<float>{3, 3, 6, 4},
-                            std::vector<float>{28, 28, 29, 26});
+    sequence[0] = Sequencer(beats, std::vector<float>{28, 28, 29, 26});
     sequence[1] = Sequencer(beats, std::vector<float>{43, 48, 45, 50});
     sequence[2] = Sequencer(beats, std::vector<float>{59, 57, 57, 59 - 12});
     sequence[3] = Sequencer(beats, std::vector<float>{64, 69, 65, 59});
@@ -194,6 +193,8 @@ void render(BelaContext* context, void* userData) {
             }
         }
     }
+    tflanger_tick(delayline[0], gNframes, ch0, gMaster_Envelope);
+    tflanger_tick(chorus[0], gNframes, ch0, gMaster_Envelope);
     tflanger_tick(delayline[1], gNframes, ch1, gMaster_Envelope);
     tflanger_tick(chorus[1], gNframes, ch1, gMaster_Envelope);
     zita[0].tick_mono(gNframes, ch0);

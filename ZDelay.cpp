@@ -1,16 +1,16 @@
-#include "Delay.h"
+#include "ZDelay.h"
 #include <math.h>
 #include <stdexcept>
 
-Delay::Delay() {}
+ZDelay::ZDelay() {}
 
-Delay::Delay(float delay, float samplingRate) {
+ZDelay::ZDelay(float delay, float samplingRate) {
     int ret;
     if ((ret = setup(delay, samplingRate)))
         throw std::runtime_error("delay: error");
 }
 
-int Delay::setup(float delay, float samplingRate) {
+int ZDelay::setup(float delay, float samplingRate) {
     if (delay < 0) {
         return -1;
     }
@@ -27,7 +27,7 @@ int Delay::setup(float delay, float samplingRate) {
     return 0;
 }
 
-float Delay::process(float input) {
+float ZDelay::process(float input) {
     // store the current vlaue
     _i += 1;
     if (_i >= buf.size()) {

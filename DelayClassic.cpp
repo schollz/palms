@@ -14,7 +14,7 @@ void DelayClassic::setup(float max_delay_time, float delay_time,
     _interp_inc = fs * 0.15; // 150 milliseconds
     for (unsigned int i = 0; i < 2; i++) {
         comb[i] = FeedbackComb(max_delay_time, decay_time, 1.0, fs);
-        delay[i] = Delay(max_offset, fs);
+        delay[i] = ZDelay(max_offset, fs);
         comb[i].setDelay(delay_time);
         delay[i].setDelay(offset);
     }

@@ -3,10 +3,10 @@
 
 #pragma once
 
-class Delay {
+class ZDelay {
   public:
-    Delay();
-    Delay(float delay, float samplingRate);
+    ZDelay();
+    ZDelay(float delay, float samplingRate);
     int setup(float frequency, float samplingRate);
     float process(float input);
     void setDelay(float delay) {

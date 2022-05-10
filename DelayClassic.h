@@ -1,5 +1,5 @@
-#include "Delay.h"
 #include "FeedbackComb.h"
+#include "ZDelay.h"
 #include "math.h"
 #pragma once
 
@@ -28,5 +28,5 @@ class DelayClassic {
     float _interp_inc = 0; // samples
     unsigned int _delay_time, _decay_time, _offset, _max_delay_time;
     FeedbackComb comb[2];
-    Delay delay[2];
+    ZDelay delay[2];
 };

@@ -2,7 +2,7 @@
 #include "MonoFilePlayer.h"
 #include "SawVoice.h"
 #include "Sequencer.h"
-// #include "reverb.h"
+#include "reverb.h"
 #include <Bela.h>
 #include <chrono>
 #include <cmath>
@@ -43,6 +43,10 @@ ADSR envelope;
 float *ch0, *ch1;
 int gNframes = 0;
 
+// Reverb
+
+Reverb zita[2];
+
 static void loop(void*) {
     while (!Bela_stopRequested()) {
         BelaCpuData* data = Bela_cpuMonitoringGet();
@@ -57,9 +61,11 @@ bool setup(BelaContext* context, void* userData) {
     Bela_cpuMonitoringInit(100);
     Bela_runAuxiliaryTask(loop);
 
+    // reverb
+
     gNframes = context->audioFrames;
-    ch0 = (float*) malloc(sizeof(float)*context->audioFrames);
-    ch1 = (float*) malloc(sizeof(float)*context->audioFrames);
+    ch0 = (float*)malloc(sizeof(float) * context->audioFrames);
+    ch1 = (float*)malloc(sizeof(float) * context->audioFrames);
 
     // setup sequencer
     std::vector<float> beats = {4.0, 4.0, 4.0, 4.0};
@@ -119,6 +125,8 @@ bool setup(BelaContext* context, void* userData) {
 
     for (unsigned int i = 0; i < 2; i++) {
         dcBlock[i] = new I1P(10.0 / context->audioSampleRate);
+        zita[i].init(context->audioSampleRate, false,
+                     context->audioFrames); // no ambisonic processing
     }
 
     return true;
@@ -152,7 +160,6 @@ void render(BelaContext* context, void* userData) {
         voice[i].process_block(context->audioFrames);
     }
 
-
     for (unsigned int n = 0; n < context->audioFrames; n++) {
         // float player = 0.2 * gPlayer.process();
         for (unsigned int channel = 0; channel < 2; channel++) {
@@ -167,18 +174,21 @@ void render(BelaContext* context, void* userData) {
             out -= dcBlock[channel]->process(out);
             out = tanh(out);
             out *= envelope.process();
-            if (channel==0) {
-                ch0[n]=out;
+            if (channel == 0) {
+                ch0[n] = out;
             } else {
-                ch1[n]=out;
+                ch1[n] = out;
             }
         }
     }
 
-    for(unsigned int n = 0; n < context->audioFrames; n++) {
+    zita[0].tick_mono(gNframes, ch0);
+    zita[1].tick_mono(gNframes, ch1);
+
+    for (unsigned int n = 0; n < context->audioFrames; n++) {
         audioWrite(context, n, 0, ch0[n]);
         audioWrite(context, n, 1, ch1[n]);
-    }   
+    }
 
     // perform the timing on the first render
     Bela_cpuToc(&gCpuRender);

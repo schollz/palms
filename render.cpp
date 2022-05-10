@@ -9,6 +9,11 @@
 #include <libraries/Biquad/Biquad.h>
 #include <vector>
 
+// profiling
+BelaCpuData gCpuRender = {
+    .count = 100,
+};
+
 static const int NUM_VOICES = 6;
 
 std::string gFilename = "drums.wav";
@@ -33,7 +38,19 @@ Biquad lowshelf, hishelf, bassboost;
 
 ADSR envelope;
 
+static void loop(void*) {
+    while (!Bela_stopRequested()) {
+        BelaCpuData* data = Bela_cpuMonitoringGet();
+        printf("total: %.2f%%, render: %.2f%%\n", data->percentage,
+               gCpuRender.percentage);
+        usleep(1000000);
+    }
+}
+
 bool setup(BelaContext* context, void* userData) {
+    // enable CPU monitoring for the whole audio thread
+    Bela_cpuMonitoringInit(100);
+    Bela_runAuxiliaryTask(loop);
 
     // setup sequencer
     std::vector<float> beats = {4.0, 4.0, 4.0, 4.0};
@@ -111,18 +128,15 @@ void render(BelaContext* context, void* userData) {
         // new beat
         rt_printf("beat (%2.0f bpm): %2.3f ", bpm, beats);
         rt_printf("amp%2.3f", voice[0].getAmp());
-        timedRender = true;
         for (unsigned int i = 0; i < NUM_VOICES; i++) {
             if (sequence[i].tick() == true) {
                 rt_printf("%d[%2.1f] ", i, sequence[i].val());
                 voice[i].setNote(sequence[i].val());
             }
         }
+        rt_printf("\n");
     }
-
-    if (timedRender == true) {
-        timingStart = std::chrono::steady_clock::now();
-    }
+    Bela_cpuTic(&gCpuRender);
 
     // process block
     for (unsigned int i = 0; i < NUM_VOICES; i++) {
@@ -148,17 +162,7 @@ void render(BelaContext* context, void* userData) {
     }
 
     // perform the timing on the first render
-    if (timedRender == true) {
-        timingEnd = std::chrono::steady_clock::now();
-        timingResult =
-            (std::chrono::duration_cast<std::chrono::nanoseconds>(timingEnd -
-                                                                  timingStart)
-                 .count() /
-             1000.0) /
-            (1000000.0 / context->audioSampleRate * context->audioFrames) * 100;
-        rt_printf(" (cpu: %2.1f%)\n", timingResult);
-        timedRender = false;
-    }
+    Bela_cpuToc(&gCpuRender);
 }
 
 void cleanup(BelaContext* context, void* userData) {}

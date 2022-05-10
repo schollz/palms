@@ -2,6 +2,7 @@
 #include "MonoFilePlayer.h"
 #include "SawVoice.h"
 #include "Sequencer.h"
+#include "flange.h"
 #include "reverb.h"
 #include <Bela.h>
 #include <chrono>
@@ -40,12 +41,14 @@ Biquad lowshelf, hishelf, bassboost;
 ADSR envelope;
 
 // Processing buffer passed from each effect to the next.
-float *ch0, *ch1;
+float *ch0, *ch1, *gMaster_Envelope;
 int gNframes = 0;
 
 // Reverb
 
 Reverb zita[2];
+tflanger* delayline[2];
+tflanger* chorus[2];
 
 static void loop(void*) {
     while (!Bela_stopRequested()) {
@@ -66,6 +69,7 @@ bool setup(BelaContext* context, void* userData) {
     gNframes = context->audioFrames;
     ch0 = (float*)malloc(sizeof(float) * context->audioFrames);
     ch1 = (float*)malloc(sizeof(float) * context->audioFrames);
+    gMaster_Envelope = (float*)malloc(sizeof(float) * context->audioFrames);
 
     // setup sequencer
     std::vector<float> beats = {4.0, 4.0, 4.0, 4.0};
@@ -125,8 +129,16 @@ bool setup(BelaContext* context, void* userData) {
 
     for (unsigned int i = 0; i < 2; i++) {
         dcBlock[i] = new I1P(10.0 / context->audioSampleRate);
+        delayline[i] =
+            tflanger_init(delayline[i], 5.0, context->audioSampleRate);
+        chorus[i] = tflanger_init(delayline[i], 0.1, context->audioSampleRate);
         zita[i].init(context->audioSampleRate, false,
                      context->audioFrames); // no ambisonic processing
+        tflanger_setPreset(delayline[i], 1);
+        tflanger_setPreset(chorus[i], 0);
+
+        tflanger_setFinalGain(delayline[i], 0.0);
+        tflanger_setFinalGain(chorus[i], 0.0);
     }
 
     return true;
@@ -173,7 +185,8 @@ void render(BelaContext* context, void* userData) {
             out = bassboost.process(out);
             out -= dcBlock[channel]->process(out);
             out = tanh(out);
-            out *= envelope.process();
+            gMaster_Envelope[n] = envelope.process();
+            out *= gMaster_Envelope[n];
             if (channel == 0) {
                 ch0[n] = out;
             } else {
@@ -181,7 +194,8 @@ void render(BelaContext* context, void* userData) {
             }
         }
     }
-
+    tflanger_tick(delayline[1], gNframes, ch1, gMaster_Envelope);
+    tflanger_tick(chorus[1], gNframes, ch1, gMaster_Envelope);
     zita[0].tick_mono(gNframes, ch0);
     zita[1].tick_mono(gNframes, ch1);
 

@@ -1,4 +1,5 @@
 #include "LFO.h"
+#include "PulseDetuned.h"
 #include "SawDetuned.h"
 #include <libraries/Biquad/Biquad.h>
 #include <vector>
@@ -27,6 +28,7 @@ class SawVoice {
     float _amp;
     Biquad lpFilter;
     SawDetuned osc[NUM_OSC];
+    PulseDetuned pulse;
     LFO lfo[NUM_LFOS];
     void update();
 };

@@ -18,7 +18,7 @@ int SawVoice::setup(float frequency, float samplingRate) {
         return -1;
     }
     _samplingRate = samplingRate;
-    _frequency = frequency / 2;
+    _frequency = frequency;
     _detuning = randfloat(0.002, 0.003);
     _amp = 1.0;
     _amp = linlin(freq_to_midi(frequency), 0, 128, 2.0, 0);
@@ -33,6 +33,12 @@ int SawVoice::setup(float frequency, float samplingRate) {
     };
     lpFilter.setup(settings);
 
+    float pulse_frequency = _frequency;
+    while (pulse_frequency > 68.0) {
+        pulse_frequency = pulse_frequency / 2.0;
+    }
+    pulse = PulseDetuned(pulse_frequency, _samplingRate);
+    pulse.setAmp(_amp);
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         osc[i] = SawDetuned(_frequency, _samplingRate);
         osc[i].setDetuning(_detuning);
@@ -48,15 +54,17 @@ int SawVoice::setup(float frequency, float samplingRate) {
 float SawVoice::getAmp() { return _amp; }
 void SawVoice::setAmp(float amp) {
     _amp = amp;
+    pulse.setAmp(_amp);
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         osc[i].setAmp(_amp);
     }
 }
 
-void SawVoice::setNote(float note) { setFrequency(midi_to_freq(note) / 2); }
+void SawVoice::setNote(float note) { setFrequency(midi_to_freq(note) / 2.0); }
 
 void SawVoice::setFrequency(float frequency) {
     _frequency = frequency;
+    pulse.setFrequency(frequency / 2.0);
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         osc[i].setFrequency(_frequency);
     }
@@ -86,7 +94,7 @@ float SawVoice::process(unsigned int channel) {
     if (channel > 1) {
         return 0;
     }
-    float out = 0;
+    float out = pulse.process(channel);
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         out += osc[i].process(channel);
     }

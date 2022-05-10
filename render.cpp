@@ -2,6 +2,7 @@
 #include "MonoFilePlayer.h"
 #include "SawVoice.h"
 #include "Sequencer.h"
+// #include "reverb.h"
 #include <Bela.h>
 #include <chrono>
 #include <cmath>
@@ -38,6 +39,10 @@ Biquad lowshelf, hishelf, bassboost;
 
 ADSR envelope;
 
+// Processing buffer passed from each effect to the next.
+float *ch0, *ch1;
+int gNframes = 0;
+
 static void loop(void*) {
     while (!Bela_stopRequested()) {
         BelaCpuData* data = Bela_cpuMonitoringGet();
@@ -51,6 +56,10 @@ bool setup(BelaContext* context, void* userData) {
     // enable CPU monitoring for the whole audio thread
     Bela_cpuMonitoringInit(100);
     Bela_runAuxiliaryTask(loop);
+
+    gNframes = context->audioFrames;
+    ch0 = (float*) malloc(sizeof(float)*context->audioFrames);
+    ch1 = (float*) malloc(sizeof(float)*context->audioFrames);
 
     // setup sequencer
     std::vector<float> beats = {4.0, 4.0, 4.0, 4.0};
@@ -143,6 +152,7 @@ void render(BelaContext* context, void* userData) {
         voice[i].process_block(context->audioFrames);
     }
 
+
     for (unsigned int n = 0; n < context->audioFrames; n++) {
         // float player = 0.2 * gPlayer.process();
         for (unsigned int channel = 0; channel < 2; channel++) {
@@ -157,9 +167,18 @@ void render(BelaContext* context, void* userData) {
             out -= dcBlock[channel]->process(out);
             out = tanh(out);
             out *= envelope.process();
-            audioWrite(context, n, channel, out);
+            if (channel==0) {
+                ch0[n]=out;
+            } else {
+                ch1[n]=out;
+            }
         }
     }
+
+    for(unsigned int n = 0; n < context->audioFrames; n++) {
+        audioWrite(context, n, 0, ch0[n]);
+        audioWrite(context, n, 1, ch1[n]);
+    }   
 
     // perform the timing on the first render
     Bela_cpuToc(&gCpuRender);

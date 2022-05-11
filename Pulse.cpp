@@ -17,7 +17,7 @@ float Pulse::process() {
     if (phase_ >= M_PI)
         phase_ -= 2.0f * (float)M_PI;
     if (phase_ < 0) {
-        return 1;
+        return 1.0;
     }
-    return -1;
+    return -1.0;
 }

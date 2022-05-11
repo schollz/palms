@@ -60,6 +60,8 @@ static void loop(void*) {
 }
 
 bool setup(BelaContext* context, void* userData) {
+    srand(time(NULL));
+
     // enable CPU monitoring for the whole audio thread
     Bela_cpuMonitoringInit(100);
     Bela_runAuxiliaryTask(loop);
@@ -133,11 +135,20 @@ bool setup(BelaContext* context, void* userData) {
         chorus[i] = tflanger_init(delayline[i], 0.1, context->audioSampleRate);
         zita[i].init(context->audioSampleRate, false,
                      context->audioFrames); // no ambisonic processing
+        zita[i].set_opmix(0.5);
+        zita[i].set_xover(800.0);
+        zita[i].set_rtlow(4.0 + (float)rand() / RAND_MAX * 4);
+        zita[i].set_rtmid(6.0 + (float)rand() / RAND_MAX * 2);
+        zita[i].set_delay(1.5 + (float)rand() / RAND_MAX * 1.03);
+        zita[i].set_fdamp(6000 + (float)rand() / RAND_MAX * 1000);
         tflanger_setPreset(delayline[i], 1);
         tflanger_setPreset(chorus[i], 0);
 
         tflanger_setFinalGain(delayline[i], 0.0);
         tflanger_setFinalGain(chorus[i], 0.0);
+        tflanger_setLfoWidth(chorus[i], 0.0 + (float)rand() / RAND_MAX * 0.005);
+        tflanger_setLfoDepth(chorus[i],
+                             0.03 + (float)rand() / RAND_MAX * 0.005);
     }
 
     return true;
@@ -183,8 +194,9 @@ void render(BelaContext* context, void* userData) {
             out = hishelf.process(out);
             out = bassboost.process(out);
             out -= dcBlock[channel]->process(out);
-            out = tanh(out);
+            out = tanh(out * 0.15);
             gMaster_Envelope[n] = envelope.process();
+            // audioWrite(context, n, channel, out);
             out *= gMaster_Envelope[n];
             if (channel == 0) {
                 ch0[n] = out;
@@ -193,10 +205,10 @@ void render(BelaContext* context, void* userData) {
             }
         }
     }
-    tflanger_tick(delayline[0], gNframes, ch0, gMaster_Envelope);
-    tflanger_tick(chorus[0], gNframes, ch0, gMaster_Envelope);
-    tflanger_tick(delayline[1], gNframes, ch1, gMaster_Envelope);
-    tflanger_tick(chorus[1], gNframes, ch1, gMaster_Envelope);
+    // tflanger_tick(delayline[0], gNframes, ch0, gMaster_Envelope);
+    // tflanger_tick(chorus[0], gNframes, ch0, gMaster_Envelope);
+    // tflanger_tick(delayline[1], gNframes, ch1, gMaster_Envelope);
+    // tflanger_tick(chorus[1], gNframes, ch1, gMaster_Envelope);
     zita[0].tick_mono(gNframes, ch0);
     zita[1].tick_mono(gNframes, ch1);
 

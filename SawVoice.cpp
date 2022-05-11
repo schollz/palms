@@ -94,7 +94,8 @@ float SawVoice::process(unsigned int channel) {
     if (channel > 1) {
         return 0;
     }
-    float out = pulse.process(channel);
+    float out = 0.0;
+    // out += pulse.process(channel);
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         out += osc[i].process(channel);
     }

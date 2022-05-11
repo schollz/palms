@@ -132,7 +132,7 @@ bool setup(BelaContext* context, void* userData) {
         dcBlock[i] = new I1P(10.0 / context->audioSampleRate);
         delayline[i] =
             tflanger_init(delayline[i], 5.0, context->audioSampleRate);
-        chorus[i] = tflanger_init(delayline[i], 0.1, context->audioSampleRate);
+        chorus[i] = tflanger_init(delayline[i], 0.2, context->audioSampleRate);
         zita[i].init(context->audioSampleRate, false,
                      context->audioFrames); // no ambisonic processing
         zita[i].set_opmix(0.5);

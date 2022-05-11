@@ -40,7 +40,7 @@ int SawVoice::setup(float frequency, float samplingRate) {
     pulse = PulseDetuned(pulse_frequency, _samplingRate);
     pulse.setAmp(_amp);
     for (unsigned int i = 0; i < NUM_OSC; i++) {
-        osc[i] = SawDetuned(_frequency, _samplingRate);
+        osc[i] = SawDetuned(_frequency / pow(2.0, i * 1.0), _samplingRate);
         osc[i].setDetuning(_detuning);
         osc[i].setAmp(_amp);
     }

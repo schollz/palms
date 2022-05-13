@@ -78,9 +78,10 @@ void SawDetuned::process_block(unsigned int n) {
     for (unsigned int i = 0; i < NUM_LFOS; i++) {
         lfo[i].process(n);
     }
-    lpFilter.setFc(
-        clamp(linexp(lfo[0].val(), -1, 1, _frequency / 3, _frequency * 16), 10,
-              20000));
+    lpFilter.setFc(clamp(linexp(lfo[0].val(), -1, 1, 30, 4000), 10,
+                         // clamp(linexp(lfo[0].val(), -1, 1, _frequency / 3,
+                         // _frequency * 16), 10,
+                         20000));
     _panVal = clamp(linlin(lfo[1].val(), -1.0, 1.0, 0.5 - _spread / 2.0,
                            0.5 + _spread / 2.0) +
                         _pan,

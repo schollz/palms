@@ -74,7 +74,7 @@ bool setup(BelaContext* context, void* userData) {
     gMaster_Envelope = (float*)malloc(sizeof(float) * context->audioFrames);
 
     // setup sequencer
-    std::vector<float> beats = {4.0, 4.0, 4.0, 4.0};
+    std::vector<float> beats = {3.0, 5.0, 4.0, 6.0};
     sequence[0] = Sequencer(beats, std::vector<float>{28, 28, 29, 26});
     sequence[1] = Sequencer(beats, std::vector<float>{43, 48, 45, 50});
     sequence[2] = Sequencer(beats, std::vector<float>{59, 57, 57, 59 - 12});
@@ -135,11 +135,11 @@ bool setup(BelaContext* context, void* userData) {
         chorus[i] = tflanger_init(delayline[i], 0.2, context->audioSampleRate);
         zita[i].init(context->audioSampleRate, false,
                      context->audioFrames); // no ambisonic processing
-        zita[i].set_opmix(0.5);
-        zita[i].set_xover(800.0);
+        zita[i].set_opmix(0.6);
+        zita[i].set_xover(1200.0);
         zita[i].set_rtlow(4.0 + (float)rand() / RAND_MAX * 4);
         zita[i].set_rtmid(6.0 + (float)rand() / RAND_MAX * 2);
-        zita[i].set_delay(1.5 + (float)rand() / RAND_MAX * 1.03);
+        zita[i].set_delay(3.5 + (float)rand() / RAND_MAX * 1.03);
         zita[i].set_fdamp(6000 + (float)rand() / RAND_MAX * 1000);
         tflanger_setPreset(delayline[i], 1);
         tflanger_setPreset(chorus[i], 0);
@@ -159,11 +159,11 @@ void render(BelaContext* context, void* userData) {
     beats += (bpm / 60) * context->audioFrames / context->audioSampleRate;
     if (floor(beats) != floor(beats_old)) {
         // randomly get
-        if ((float)rand() / RAND_MAX < 0.05) {
-            envelope.gate(false);
-        } else {
-            envelope.gate(true);
-        }
+        // if ((float)rand() / RAND_MAX < 0.05) {
+        //    envelope.gate(false);
+        //} else {
+        //    envelope.gate(true);
+        // }
         // new beat
         rt_printf("beat (%2.0f bpm): %2.3f ", bpm, beats);
         rt_printf("amp%2.3f", voice[0].getAmp());
@@ -205,9 +205,9 @@ void render(BelaContext* context, void* userData) {
             }
         }
     }
-    // tflanger_tick(delayline[0], gNframes, ch0, gMaster_Envelope);
+    tflanger_tick(delayline[0], gNframes, ch0, gMaster_Envelope);
     // tflanger_tick(chorus[0], gNframes, ch0, gMaster_Envelope);
-    // tflanger_tick(delayline[1], gNframes, ch1, gMaster_Envelope);
+    tflanger_tick(delayline[1], gNframes, ch1, gMaster_Envelope);
     // tflanger_tick(chorus[1], gNframes, ch1, gMaster_Envelope);
     zita[0].tick_mono(gNframes, ch0);
     zita[1].tick_mono(gNframes, ch1);

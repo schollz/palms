@@ -34,6 +34,7 @@ int SawVoice::setup(float frequency, float samplingRate) {
     lpFilter.setup(settings);
 
     float pulse_frequency = _frequency;
+    float offset = randfloat(-0.002, 0.002);
     while (pulse_frequency > 68.0) {
         pulse_frequency = pulse_frequency / 2.0;
     }
@@ -43,6 +44,7 @@ int SawVoice::setup(float frequency, float samplingRate) {
         osc[i] = SawDetuned(_frequency / pow(2.0, i * 1.0), _samplingRate);
         osc[i].setDetuning(_detuning);
         osc[i].setAmp(_amp);
+        osc[i].setOffset(offset);
     }
 
     lfo[0] = LFO(randfloat(1.0 / 30.0, 1.0 / 10.0), _samplingRate);

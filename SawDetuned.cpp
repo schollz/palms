@@ -27,6 +27,7 @@ int SawDetuned::setup(float frequency, float samplingRate) {
     _detuning = sdrandfloat(0.002, 0.006);
     _detuningL = sdrandfloat(0, _detuning);
     _detuningR = sdrandfloat(0, _detuning);
+    _offset = 0.0;
     _pan = 0.0;    // [-1,1]
     _spread = 0.3; // [0,1]
     _amp = 0.1;
@@ -59,9 +60,11 @@ void SawDetuned::setFrequency(float frequency) {
     _frequency = frequency;
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         if (i == 0) {
-            osc[i].setFrequency(_frequency * (1 + _detuning + _detuningL));
+            osc[i].setFrequency(_frequency *
+                                (1 + _detuning + _detuningL + _offset));
         } else {
-            osc[i].setFrequency(_frequency * (1 - _detuning - _detuningR));
+            osc[i].setFrequency(_frequency *
+                                (1 - _detuning - _detuningR + _offset));
         }
     }
 }

@@ -11,6 +11,11 @@ inline float freq_to_midi(float f) { return 12.0 * log2(f / 440.0) + 69.0; }
 inline float midi_to_freq(float m) {
     return powf_neon(2.0, (m - 69.0) / 12.0) * 440.0;
 }
+// cents_away returns the frequency change for X cents away from a frequency
+// (100 cents = 1 semitone)
+inline float cents_away(float f, float cents) {
+    return f * (powf_neon(2.0, (cents / 1200.0)) - 1);
+}
 inline float linexp(float f, float slo, float shi, float dlo, float dhi) {
     if (f <= slo) {
         return dlo;

@@ -60,11 +60,11 @@ void SawDetuned::setFrequency(float frequency) {
     _frequency = frequency;
     for (unsigned int i = 0; i < NUM_OSC; i++) {
         if (i == 0) {
-            osc[i].setFrequency(_frequency *
-                                (1 + _detuning + _detuningL + _offset));
+            osc[i].setFrequency(_frequency +
+                                cents_away(_detuning + _detuningL + _offset));
         } else {
-            osc[i].setFrequency(_frequency *
-                                (1 - _detuning - _detuningR + _offset));
+            osc[i].setFrequency(_frequency -
+                                cents_away(_detuning + _detuningR + _offset));
         }
     }
 }

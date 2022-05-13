@@ -9,8 +9,8 @@
 class SawVoice {
   public:
     SawVoice();
-    SawVoice(float frequency, float samplingRate);
-    int setup(float frequency, float samplingRate);
+    SawVoice(float frequency, float offset, float samplingRate);
+    int setup(float frequency, float offset, float samplingRate);
     void setFrequency(float frequency);
     void setNote(float note);
     void setDetuning(float detuning);

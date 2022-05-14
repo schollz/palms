@@ -28,7 +28,7 @@ int SawVoice::setup(float frequency, float samplingRate) {
         .fs = _samplingRate,
         .cutoff = _frequency,
         .type = Biquad::lowpass,
-        .q = 0.707,
+        .q = randfloat(0.303, 0.808),
         .peakGainDb = 0,
     };
     lpFilter.setup(settings);

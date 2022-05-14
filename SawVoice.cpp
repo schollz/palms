@@ -7,9 +7,9 @@
 
 SawVoice::SawVoice() {}
 
-SawVoice::SawVoice(float frequency, float samplingRate) {
+SawVoice::SawVoice(float frequency, float offset, float samplingRate) {
     int ret;
-    if ((ret = setup(frequency, samplingRate)))
+    if ((ret = setup(frequency, offset, samplingRate)))
         throw std::runtime_error("OnePole: cutoff is above Nyquist");
 }
 
@@ -23,7 +23,6 @@ int SawVoice::setup(float frequency, float offset, float samplingRate) {
     _amp = 1.0;
     _amp = linlin(freq_to_midi(frequency), 0, 128, 2.0, 0);
     _amp = clamp(_amp, 0, 1);
-    _offset = offset;
 
     Biquad::Settings settings{
         .fs = _samplingRate,

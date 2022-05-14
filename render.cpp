@@ -125,10 +125,11 @@ bool setup(BelaContext* context, void* userData) {
               gPlayer.size() / context->audioSampleRate);
 
     for (unsigned int i = 0; i < NUM_VOICES; i++) {
-        float offset = (float)rand() / RAND_MAX * 0.5 - 0.25; // offset in cents
+        float offset =
+            ((float)rand() / RAND_MAX - 0.5) * 1.0; // offset in cents
         voice[i] = SawVoice(98.1 * (i + 1), offset, context->audioSampleRate);
         voice[i].setDetuning((float)rand() / RAND_MAX *
-                             1.0); // detuning in cents
+                             0.5); // detuning in cents
     }
 
     for (unsigned int i = 0; i < 2; i++) {

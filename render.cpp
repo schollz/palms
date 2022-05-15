@@ -56,22 +56,24 @@ Reverb zita[2];
 tflanger* delayline[2];
 tflanger* chorus[2];
 
+uint8_t leds[64];
+
 void handle_press(const monome_event_t* e, void* data) {
+    static const int xoff = 0;
+    static const int yoff = 0;
     unsigned int x, y;
 
     x = e->grid.x;
     y = e->grid.y;
+    rt_printf("\nx=%d,y=%d\n", x, y);
 
     /* toggle the button */
     grid[x][y] += 1; //! grid[x][y];
                      // works
     // monome_led_set(e->monome, x, y, grid[x][y]);
     // doesn't work
-    uint8_t* leds = (uint8_t*)malloc(sizeof(uint8_t) * 64);
-    for (unsigned int i = 0; i < 8; i++) {
-        leds[i] = 4;
-    }
-    monome_led_level_map(e->monome, 0, 0, leds);
+    leds[x + y * 8] = (int)grid[x][y];
+    monome_led_level_map(monome, xoff, yoff, leds);
     // also doesn't work
     // monome_led_level_set(e->monome, x, y, 15);
 }
@@ -96,7 +98,8 @@ bool setup(BelaContext* context, void* userData) {
     srand(time(NULL));
 
     /* open the monome device */
-    if (!(monome = monome_open(MONOME_DEVICE, "8000")))
+    // if (!(monome = monome_open(MONOME_DEVICE, "8000")))
+    if (!(monome = monome_open("/dev/ttyUSB0")))
         return -1;
     monome_led_all(monome, 0);
     /* register our button press callback */

@@ -266,8 +266,11 @@ void render(BelaContext* context, void* userData) {
     zita[1].tick_mono(gNframes, ch1);
 
     for (unsigned int n = 0; n < context->audioFrames; n++) {
-        audioWrite(context, n, 0, ch0[n]);
-        audioWrite(context, n, 1, ch1[n]);
+        float inputL = audioRead(context, n, 0);
+        float inputR = audioRead(context, n, 0);
+
+        audioWrite(context, n, 0, ch0[n] + inputL);
+        audioWrite(context, n, 1, ch1[n] + inputR);
         analogWriteOnce(context, n, 0, ch0send[n] / 2.0);
         analogWriteOnce(context, n, 1, ch1send[n] / 2.0);
     }

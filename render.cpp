@@ -63,11 +63,17 @@ void handle_press(const monome_event_t* e, void* data) {
     y = e->grid.y;
 
     /* toggle the button */
-    grid[x][y] = !grid[x][y];
-    // works
+    grid[x][y] += 1; //! grid[x][y];
+                     // works
     // monome_led_set(e->monome, x, y, grid[x][y]);
     // doesn't work
-    monome_led_level_set(e->monome, x, y, grid[x][y]);
+    uint8_t* leds = (uint8_t*)malloc(sizeof(uint8_t) * 64);
+    for (unsigned int i = 0; i < 8; i++) {
+        leds[i] = 4;
+    }
+    monome_led_level_map(e->monome, 0, 0, leds);
+    // also doesn't work
+    // monome_led_level_set(e->monome, x, y, 15);
 }
 
 static void loop(void*) {

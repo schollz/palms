@@ -55,3 +55,19 @@ endfunction
 
 autocmd BufWritePre *.h,*.hpp,*.c,*.cpp,*.vert,*.frag :call FormatBuffer()
 ```
+
+~/.config/serialosc/m1001055.conf
+
+```
+server {
+  port = 14656
+}
+application {
+  osc_prefix = "/monome"
+  host = "127.0.0.1"
+  port = 8000
+}
+device {
+  rotation = 0
+}
+```

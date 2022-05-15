@@ -9,7 +9,13 @@
 #include <cmath>
 #include <libraries/ADSR/ADSR.h>
 #include <libraries/Biquad/Biquad.h>
+#include <monome.h>
 #include <vector>
+
+// monome
+monome_t* monome;
+unsigned int grid[16][16] = {[0 ... 15][0 ... 15] = 0};
+#define MONOME_DEVICE "osc.udp://127.0.0.1:14656/monome"
 
 // profiling
 BelaCpuData gCpuRender = {
@@ -36,12 +42,12 @@ std::chrono::steady_clock::time_point timingEnd;
 // sequencer
 Sequencer sequence[6];
 
-Biquad lowshelf, hishelf, bassboost;
+Biquad lowshelf, hishelf, bassboost, highpass;
 
 ADSR envelope;
 
 // Processing buffer passed from each effect to the next.
-float *ch0, *ch1, *gMaster_Envelope;
+float *ch0, *ch1, *ch0send, *ch1send, *gMaster_Envelope;
 int gNframes = 0;
 
 // Reverb
@@ -49,6 +55,20 @@ int gNframes = 0;
 Reverb zita[2];
 tflanger* delayline[2];
 tflanger* chorus[2];
+
+void handle_press(const monome_event_t* e, void* data) {
+    unsigned int x, y;
+
+    x = e->grid.x;
+    y = e->grid.y;
+
+    /* toggle the button */
+    grid[x][y] = !grid[x][y];
+    // works
+    // monome_led_set(e->monome, x, y, grid[x][y]);
+    // doesn't work
+    monome_led_level_set(e->monome, x, y, grid[x][y]);
+}
 
 static void loop(void*) {
     while (!Bela_stopRequested()) {
@@ -59,8 +79,23 @@ static void loop(void*) {
     }
 }
 
+static void loop2(void*) { // monome_event_loop(monome);
+    while (!Bela_stopRequested()) {
+        monome_event_handle_next(monome);
+    }
+    monome_close(monome);
+}
+
 bool setup(BelaContext* context, void* userData) {
     srand(time(NULL));
+
+    /* open the monome device */
+    if (!(monome = monome_open(MONOME_DEVICE, "8000")))
+        return -1;
+    monome_led_all(monome, 0);
+    /* register our button press callback */
+    monome_register_handler(monome, MONOME_BUTTON_DOWN, handle_press, NULL);
+    Bela_runAuxiliaryTask(loop2);
 
     // enable CPU monitoring for the whole audio thread
     Bela_cpuMonitoringInit(100);
@@ -71,6 +106,8 @@ bool setup(BelaContext* context, void* userData) {
     gNframes = context->audioFrames;
     ch0 = (float*)malloc(sizeof(float) * context->audioFrames);
     ch1 = (float*)malloc(sizeof(float) * context->audioFrames);
+    ch0send = (float*)malloc(sizeof(float) * context->audioFrames);
+    ch1send = (float*)malloc(sizeof(float) * context->audioFrames);
     gMaster_Envelope = (float*)malloc(sizeof(float) * context->audioFrames);
 
     // setup sequencer
@@ -113,6 +150,14 @@ bool setup(BelaContext* context, void* userData) {
         .peakGainDb = 8,
     };
     bassboost.setup(settings3);
+    Biquad::Settings settings4{
+        .fs = context->audioSampleRate,
+        .cutoff = 2000,
+        .type = Biquad::highpass,
+        .q = 0.707,
+        .peakGainDb = 8,
+    };
+    highpass.setup(settings4);
 
     if (!gPlayer.setup(gFilename)) {
         rt_printf("Error loading audio file '%s'\n", gFilename.c_str());
@@ -200,8 +245,10 @@ void render(BelaContext* context, void* userData) {
             out *= gMaster_Envelope[n];
             if (channel == 0) {
                 ch0[n] = out;
+                ch0send[n] = highpass.process(out);
             } else {
                 ch1[n] = out;
+                ch1send[n] = highpass.process(out);
             }
         }
     }
@@ -215,10 +262,12 @@ void render(BelaContext* context, void* userData) {
     for (unsigned int n = 0; n < context->audioFrames; n++) {
         audioWrite(context, n, 0, ch0[n]);
         audioWrite(context, n, 1, ch1[n]);
+        analogWriteOnce(context, n, 0, ch0send[n] / 2.0);
+        analogWriteOnce(context, n, 1, ch1send[n] / 2.0);
     }
 
     // perform the timing on the first render
     Bela_cpuToc(&gCpuRender);
 }
 
-void cleanup(BelaContext* context, void* userData) {}
+void cleanup(BelaContext* context, void* userData) { rt_printf("cleanup!"); }
